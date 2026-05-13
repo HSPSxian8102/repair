@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase 設定指南 — 學校設備線上報修系統</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #dbeafe;
+      --teal:    #0d9488;
+      --teal-lt: #ccfbf1;
+      --amber:   #d97706;
+      --amber-lt:#fef3c7;
+      --red:     #dc2626;
+      --red-lt:  #fee2e2;
+      --gray-50: #f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-400:#94a3b8;
+      --gray-600:#475569;
+      --gray-800:#1e293b;
+      --white:   #ffffff;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans TC', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--teal);
+      color: var(--white);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    header h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 700; letter-spacing: -.02em; }
+    header p  { margin-top: 10px; font-size: 1rem; opacity: .85; }
+    header .meta { margin-top: 16px; font-size: .82rem; opacity: .6; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+
+    /* ── STEP SECTION ── */
+    .step-section { margin-top: 52px; }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .step-num {
+      min-width: 40px; height: 40px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .step-num.teal  { background: var(--teal); }
+    .step-num.amber { background: var(--amber); }
+    .step-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+    .step-subtitle {
+      font-size: .82rem;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 14px;
+    }
+
+    /* ── ORDERED LIST (click steps) ── */
+    .steps-list { list-style: none; }
+    .steps-list li {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: .9rem;
+      color: var(--gray-700);
+      align-items: flex-start;
+    }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list .num {
+      min-width: 22px; height: 22px;
+      background: var(--blue-lt);
+      color: var(--blue);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+    .steps-list .num.t { background: var(--teal-lt); color: var(--teal); }
+    .steps-list .num.a { background: var(--amber-lt); color: var(--amber); }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--gray-800);
+      color: #e2e8f0;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: .82rem;
+      line-height: 1.9;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block .cm { color: #94a3b8; }
+    .code-block .ck { color: #7dd3fc; }
+    .code-block .cv { color: #86efac; }
+    .code-block .cs { color: #fcd34d; }
+
+    /* ── NOTICE ── */
+    .notice {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .87rem;
+      margin: 12px 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.6;
+    }
+    .notice-blue  { background: var(--blue-lt);  border-left: 4px solid var(--blue); }
+    .notice-teal  { background: var(--teal-lt);  border-left: 4px solid var(--teal); }
+    .notice-amber { background: var(--amber-lt); border-left: 4px solid var(--amber); }
+    .notice-red   { background: var(--red-lt);   border-left: 4px solid var(--red); }
+    .notice .icon { font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+    .notice strong { font-weight: 700; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { overflow-x: auto; margin: 12px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--gray-100); }
+    th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--gray-200); }
+    th { font-weight: 700; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--gray-600); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── PILL ── */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .pill-blue  { background: var(--blue-lt);  color: var(--blue); }
+    .pill-teal  { background: var(--teal-lt);  color: var(--teal); }
+    .pill-amber { background: var(--amber-lt); color: var(--amber); }
+
+    /* ── SCREENSHOT PLACEHOLDER ── */
+    .screen-hint {
+      background: var(--gray-100);
+      border: 2px dashed var(--gray-200);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .83rem;
+      color: var(--gray-400);
+      margin: 12px 0;
+    }
+    .screen-hint strong { color: var(--gray-600); }
+
+    /* ── ENV MAPPING ── */
+    .env-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: .85rem;
+    }
+    .env-row:last-child { border-bottom: none; }
+    .env-key { font-family: monospace; color: var(--blue); font-weight: 600; min-width: 320px; }
+    .env-desc { color: var(--gray-600); }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: .88rem;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .check-box {
+      width: 20px; height: 20px;
+      border: 2px solid var(--gray-300);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    footer {
+      background: var(--gray-800);
+      color: var(--gray-400);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: .82rem;
+      margin-top: 60px;
+    }
+    footer strong { color: var(--white); }
+
+    @media (max-width: 600px) {
+      header { padding: 36px 16px 28px; }
+      .container { padding: 0 14px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Setup Guide</div>
+  <h1>Firebase 完整設定指南</h1>
+  <p>學校設備線上報修系統 · 上線前必做步驟</p>
+  <div class="meta">國立臺南大學附屬高級中學 &nbsp;·&nbsp; 版本 1.0 &nbsp;·&nbsp; 2026-05-13</div>
+</header>
+
+<div class="container">
+
+  <!-- ══ 總覽 ══ -->
+  <div style="margin-top:40px;" class="card">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:16px;">設定步驟總覽</h2>
+    <ul class="checklist">
+      <li><div class="check-box"></div>Step 1 &nbsp;—&nbsp; 在 Firebase 專案新增「網頁應用程式」，取得設定值</li>
+      <li><div class="check-box"></div>Step 2 &nbsp;—&nbsp; 啟用 Google 登入方式</li>
+      <li><div class="check-box"></div>Step 3 &nbsp;—&nbsp; 建立 Firestore 資料庫</li>
+      <li><div class="check-box"></div>Step 4 &nbsp;—&nbsp; 套用 Firestore 安全規則</li>
+      <li><div class="check-box"></div>Step 5 &nbsp;—&nbsp; 在本機建立 .env 設定檔</li>
+      <li><div class="check-box"></div>Step 6 &nbsp;—&nbsp; 啟動系統並第一次登入</li>
+      <li><div class="check-box"></div>Step 7 &nbsp;—&nbsp; 設定超級管理員帳號</li>
+      <li><div class="check-box"></div>Step 8 &nbsp;—&nbsp; 新增地點清單資料</li>
+    </ul>
+  </div>
+
+  <!-- ══ STEP 1 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">新增網頁應用程式，取得 Firebase 設定值</div>
+        <div class="step-subtitle">這步驟會產生 .env 所需的 API 金鑰與設定</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num">1</div>
+          <div>前往 <strong>Firebase Console</strong> 首頁，確認左上角顯示的是你的專案（例如 Repair-System）</div>
+        </li>
+        <li>
+          <div class="num">2</div>
+          <div>點左側選單最上方的 <strong>「專案總覽」</strong>，進入專案首頁</div>
+        </li>
+        <li>
+          <div class="num">3</div>
+          <div>在「您的應用程式」區塊，找到平台圖示列，點 <strong><code>&lt;/&gt;</code> 圖示</strong>（網頁平台，看起來像程式碼符號）</div>
+        </li>
+        <li>
+          <div class="num">4</div>
+          <div>「應用程式暱稱」欄位填入 <strong><code>repair-web</code></strong>（任意命名皆可）</div>
+        </li>
+        <li>
+          <div class="num">5</div>
+          <div>「Firebase Hosting」的勾選框 <strong>不需要勾選</strong>，我們使用 GitHub Pages 部署</div>
+        </li>
+        <li>
+          <div class="num">6</div>
+          <div>點 <strong>「註冊應用程式」</strong> 按鈕</div>
+        </li>
+        <li>
+          <div class="num">7</div>
+          <div>畫面會出現一段 JavaScript 程式碼，找到 <code>firebaseConfig</code> 物件，<strong>把以下每個值複製下來</strong>備用（下一步會用到）</div>
+        </li>
+        <li>
+          <div class="num">8</div>
+          <div>點 <strong>「繼續前往主控台」</strong> 結束此步驟</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="screen-hint">
+      <strong>程式碼畫面範例（你的值會不同）：</strong>
+    </div>
+    <div class="code-block">
+<span class="ck">const</span> <span class="cv">firebaseConfig</span> = {<br>
+&nbsp;&nbsp;<span class="ck">apiKey</span>:            <span class="cs">"AIzaSyXXXXXXXXXXXXXXXXXXXXXXXX"</span>,<br>
+&nbsp;&nbsp;<span class="ck">authDomain</span>:        <span class="cs">"repair-system-xxxxx.firebaseapp.com"</span>,<br>
+&nbsp;&nbsp;<span class="ck">projectId</span>:         <span class="cs">"repair-system-xxxxx"</span>,<br>
+&nbsp;&nbsp;<span class="ck">storageBucket</span>:     <span class="cs">"repair-system-xxxxx.appspot.com"</span>,<br>
+&nbsp;&nbsp;<span class="ck">messagingSenderId</span>: <span class="cs">"826771XXXXX"</span>,<br>
+&nbsp;&nbsp;<span class="ck">appId</span>:             <span class="cs">"1:826771XXXXX:web:XXXXXXXXXXXXXXXX"</span><br>
+};
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">啟用 Google 登入方式</div>
+        <div class="step-subtitle">讓使用者可以用學校 Google 帳號登入</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num">1</div>
+          <div>點左側選單 <strong>「Authentication」</strong></div>
+        </li>
+        <li>
+          <div class="num">2</div>
+          <div>點上方分頁 <strong>「登入方式」</strong></div>
+        </li>
+        <li>
+          <div class="num">3</div>
+          <div>在提供者清單中找到 <strong>「Google」</strong>，點進去</div>
+        </li>
+        <li>
+          <div class="num">4</div>
+          <div>右上角有一個開關，點擊切換為 <strong>「啟用」</strong>（變成藍色）</div>
+        </li>
+        <li>
+          <div class="num">5</div>
+          <div>「專案的公開名稱」可以填 <strong>國立臺南大學附屬高級中學報修系統</strong></div>
+        </li>
+        <li>
+          <div class="num">6</div>
+          <div>「支援電子郵件」選擇 <strong><code>begin@gm.tntcsh.tn.edu.tw</code></strong></div>
+        </li>
+        <li>
+          <div class="num">7</div>
+          <div>點 <strong>「儲存」</strong> 按鈕完成</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num teal">3</div>
+      <div>
+        <div class="step-title">建立 Firestore 資料庫</div>
+        <div class="step-subtitle">選正式版模式，位置選亞洲</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num t">1</div>
+          <div>點左側選單 <strong>「Firestore Database」</strong>（或「Firestore」）</div>
+        </li>
+        <li>
+          <div class="num t">2</div>
+          <div>點 <strong>「建立資料庫」</strong> 按鈕</div>
+        </li>
+        <li>
+          <div class="num t">3</div>
+          <div>「選取版本」保持預設（Native 模式）→ 點 <strong>「下一步」</strong></div>
+        </li>
+        <li>
+          <div class="num t">4</div>
+          <div>「資料庫 ID 和位置」：資料庫 ID 保持 <code>(default)</code>，位置選 <strong><code>asia-east1</code>（台灣/香港最近）</strong> → 點「下一步」</div>
+        </li>
+        <li>
+          <div class="num t">5</div>
+          <div>「設定」步驟：選 <strong>「以正式版模式啟動」</strong>（不要選測試模式）</div>
+        </li>
+        <li>
+          <div class="num t">6</div>
+          <div>點 <strong>「建立」</strong>，等待約 30 秒建立完成</div>
+        </li>
+      </ul>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">⚠</span>
+      <div><strong>一定要選正式版模式。</strong>測試模式雖然方便，但資料庫會對所有人開放 30 天，任何人都可以讀寫，不適合學校系統。我們在下一步會立即套用安全規則。</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num teal">4</div>
+      <div>
+        <div class="step-title">套用 Firestore 安全規則</div>
+        <div class="step-subtitle">確保只有學校帳號才能存取資料</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num t">1</div>
+          <div>在 Firestore 頁面，點上方分頁 <strong>「規則」</strong></div>
+        </li>
+        <li>
+          <div class="num t">2</div>
+          <div>把編輯框裡的預設內容 <strong>全部選取刪除</strong></div>
+        </li>
+        <li>
+          <div class="num t">3</div>
+          <div>將下方的安全規則程式碼 <strong>完整複製貼入</strong> 編輯框</div>
+        </li>
+        <li>
+          <div class="num t">4</div>
+          <div>點右上角 <strong>「發布」</strong> 按鈕</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="code-block" style="font-size:.78rem;">
+<span class="cm">rules_version = '2';</span><br>
+<span class="ck">service</span> cloud.firestore {<br>
+&nbsp;&nbsp;<span class="ck">match</span> /databases/{database}/documents {<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isAuthed</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> request.auth != null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isSchoolAccount</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> isAuthed() &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.auth.token.email.matches(<span class="cs">'.*@gm\\.tntcsh\\.tn\\.edu\\.tw$'</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isAdmin</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> isSchoolAccount() &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exists(/databases/$(database)/documents/admins/$(request.auth.uid));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isSuperAdmin</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> isAdmin() &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == <span class="cs">'superadmin'</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">match</span> /repairs/{id} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read:   <span class="ck">if</span> isSchoolAccount();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow create: <span class="ck">if</span> isSchoolAccount();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow update: <span class="ck">if</span> isSchoolAccount() &amp;&amp; (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isAdmin() ||<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(request.auth.uid == resource.data.submittedBy &amp;&amp; resource.data.status == <span class="cs">'pending'</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow delete: <span class="ck">if</span> isAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">match</span> /admins/{uid} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read:  <span class="ck">if</span> isSchoolAccount();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: <span class="ck">if</span> isSuperAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">match</span> /locations/{id} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read:  <span class="ck">if</span> isSchoolAccount();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow write: <span class="ck">if</span> isSuperAdmin();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+    </div>
+  </div>
+
+  <!-- ══ STEP 5 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">在本機建立 .env 設定檔</div>
+        <div class="step-subtitle">把 Step 1 取得的 Firebase 設定值填入專案</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num">1</div>
+          <div>開啟檔案總管，前往 <strong><code>D:\Repair</code></strong> 資料夾</div>
+        </li>
+        <li>
+          <div class="num">2</div>
+          <div>找到 <strong><code>.env.example</code></strong> 這個檔案，複製一份，改名為 <strong><code>.env</code></strong>（注意：沒有副檔名，就是 <code>.env</code>）</div>
+        </li>
+        <li>
+          <div class="num">3</div>
+          <div>用記事本或 VS Code 開啟 <code>.env</code>，把每一行等號右邊的 <code>your-xxx</code> 換成 Step 1 複製到的對應值</div>
+        </li>
+        <li>
+          <div class="num">4</div>
+          <div>儲存檔案</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:.9rem;font-weight:700;margin-bottom:14px;">設定值對應說明</h3>
+      <div class="env-row">
+        <span class="env-key">VITE_FIREBASE_API_KEY</span>
+        <span class="env-desc">← <code>apiKey</code> 的值</span>
+      </div>
+      <div class="env-row">
+        <span class="env-key">VITE_FIREBASE_AUTH_DOMAIN</span>
+        <span class="env-desc">← <code>authDomain</code> 的值</span>
+      </div>
+      <div class="env-row">
+        <span class="env-key">VITE_FIREBASE_PROJECT_ID</span>
+        <span class="env-desc">← <code>projectId</code> 的值</span>
+      </div>
+      <div class="env-row">
+        <span class="env-key">VITE_FIREBASE_MESSAGING_SENDER_ID</span>
+        <span class="env-desc">← <code>messagingSenderId</code> 的值</span>
+      </div>
+      <div class="env-row">
+        <span class="env-key">VITE_FIREBASE_APP_ID</span>
+        <span class="env-desc">← <code>appId</code> 的值</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+<span class="cm"># D:\Repair\.env 填好後範例（你的值會不同）</span><br>
+<span class="ck">VITE_FIREBASE_API_KEY</span>=<span class="cs">AIzaSyXXXXXXXXXXXXXXXXXXXXXXXX</span><br>
+<span class="ck">VITE_FIREBASE_AUTH_DOMAIN</span>=<span class="cs">repair-system-xxxxx.firebaseapp.com</span><br>
+<span class="ck">VITE_FIREBASE_PROJECT_ID</span>=<span class="cs">repair-system-xxxxx</span><br>
+<span class="ck">VITE_FIREBASE_MESSAGING_SENDER_ID</span>=<span class="cs">826771XXXXX</span><br>
+<span class="ck">VITE_FIREBASE_APP_ID</span>=<span class="cs">1:826771XXXXX:web:XXXXXXXXXXXXXXXX</span>
+    </div>
+
+    <div class="notice notice-red">
+      <span class="icon">🔒</span>
+      <div><strong>.env 不可上傳到 GitHub！</strong>這個檔案含有私密金鑰。專案的 <code>.gitignore</code> 已經設定好會忽略它，請不要手動移除這個設定。</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 6 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div>
+        <div class="step-title">啟動系統並第一次登入</div>
+        <div class="step-subtitle">確認系統能正常連線 Firebase，並建立你的帳號紀錄</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num">1</div>
+          <div>開啟 <strong>命令提示字元</strong> 或 <strong>PowerShell</strong>，輸入以下指令切換到專案資料夾：<br>
+          <code style="background:var(--gray-100);padding:2px 6px;border-radius:3px;">cd D:\Repair</code></div>
+        </li>
+        <li>
+          <div class="num">2</div>
+          <div>輸入啟動指令：<br>
+          <code style="background:var(--gray-100);padding:2px 6px;border-radius:3px;">npm run dev</code></div>
+        </li>
+        <li>
+          <div class="num">3</div>
+          <div>畫面出現 <code>Local: http://localhost:5173/</code> 表示啟動成功</div>
+        </li>
+        <li>
+          <div class="num">4</div>
+          <div>開啟瀏覽器，前往 <strong><code>http://localhost:5173</code></strong></div>
+        </li>
+        <li>
+          <div class="num">5</div>
+          <div>點「使用 Google 帳號登入」按鈕，選擇你的學校帳號（<code>begin@gm.tntcsh.tn.edu.tw</code>）登入</div>
+        </li>
+        <li>
+          <div class="num">6</div>
+          <div>登入成功後，應該會看到報修清單主頁（目前是空的，這是正常的）</div>
+        </li>
+      </ul>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>這步驟的目的是讓 Firebase 自動建立你的使用者紀錄，這樣下一步才有 UID 可以複製。</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 7 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num amber">7</div>
+      <div>
+        <div class="step-title">設定超級管理員帳號</div>
+        <div class="step-subtitle">讓你的帳號獲得總務主管最高權限</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:.9rem;font-weight:700;color:var(--amber);margin-bottom:12px;">第一部分：取得你的使用者 UID</h3>
+      <ul class="steps-list">
+        <li>
+          <div class="num a">1</div>
+          <div>回到 Firebase Console，點左側選單 <strong>「Authentication」</strong></div>
+        </li>
+        <li>
+          <div class="num a">2</div>
+          <div>點上方分頁 <strong>「使用者」</strong>，此時應該可以看到你剛才登入的帳號出現在清單中</div>
+        </li>
+        <li>
+          <div class="num a">3</div>
+          <div>找到你的 Email，同一列最右邊有一欄 <strong>「使用者 UID」</strong>，是一串英數字（例如 <code>abc123XYZ456def</code>）</div>
+        </li>
+        <li>
+          <div class="num a">4</div>
+          <div>點那串 UID 旁邊的 <strong>複製圖示</strong>，把它複製到剪貼簿備用</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3 style="font-size:.9rem;font-weight:700;color:var(--amber);margin-bottom:12px;">第二部分：在 Firestore 新增管理員文件</h3>
+      <ul class="steps-list">
+        <li>
+          <div class="num a">1</div>
+          <div>點左側選單 <strong>「Firestore Database」</strong>，點上方分頁 <strong>「資料」</strong></div>
+        </li>
+        <li>
+          <div class="num a">2</div>
+          <div>在最左欄（集合列表區）點 <strong>「+ 新增集合」</strong></div>
+        </li>
+        <li>
+          <div class="num a">3</div>
+          <div>「集合 ID」欄位輸入 <strong><code>admins</code></strong>（全小寫，完全一樣）→ 點「下一步」</div>
+        </li>
+        <li>
+          <div class="num a">4</div>
+          <div>「文件 ID」欄位：<strong>把剛才複製的 UID 貼上</strong>（不要點「自動 ID」）</div>
+        </li>
+        <li>
+          <div class="num a">5</div>
+          <div>新增以下三個欄位（點「+ 新增欄位」逐一加入）：</div>
+        </li>
+      </ul>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>欄位名稱</th><th>類型</th><th>值</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>email</code></td><td>string（字串）</td><td><code>begin@gm.tntcsh.tn.edu.tw</code></td></tr>
+            <tr><td><code>name</code></td><td>string（字串）</td><td>你的姓名</td></tr>
+            <tr><td><code>role</code></td><td>string（字串）</td><td><strong><code>superadmin</code></strong>（全小寫）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="steps-list" style="margin-top:12px;">
+        <li>
+          <div class="num a">6</div>
+          <div>點 <strong>「儲存」</strong> 完成</div>
+        </li>
+        <li>
+          <div class="num a">7</div>
+          <div>回到瀏覽器的報修系統，按 <strong>F5 重新整理</strong>，導覽列右上角的你的名字旁邊應該出現 <span style="background:rgba(255,255,255,0.2);border-radius:3px;padding:1px 6px;background:var(--teal-lt);color:var(--teal);font-size:.8rem;font-weight:700;">總務人員</span> 標籤，代表設定成功</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ STEP 8 ══ -->
+  <div class="step-section">
+    <div class="step-header">
+      <div class="step-num teal">8</div>
+      <div>
+        <div class="step-title">新增地點清單資料</div>
+        <div class="step-subtitle">提交報修單時的地點下拉選單來源</div>
+      </div>
+    </div>
+    <div class="card">
+      <ul class="steps-list">
+        <li>
+          <div class="num t">1</div>
+          <div>在 Firestore → 資料 頁面，點 <strong>「+ 新增集合」</strong></div>
+        </li>
+        <li>
+          <div class="num t">2</div>
+          <div>「集合 ID」輸入 <strong><code>locations</code></strong> → 點「下一步」</div>
+        </li>
+        <li>
+          <div class="num t">3</div>
+          <div>「文件 ID」點 <strong>「自動 ID」</strong>（讓系統自動產生）</div>
+        </li>
+        <li>
+          <div class="num t">4</div>
+          <div>依照下表新增欄位，然後點「儲存」。<strong>重複此步驟新增多個地點</strong></div>
+        </li>
+      </ul>
+
+      <div class="tbl-wrap" style="margin-top:12px;">
+        <table>
+          <thead>
+            <tr><th>欄位名稱</th><th>類型</th><th>範例值</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string</td><td><code>教學大樓 101教室</code></td></tr>
+            <tr><td><code>building</code></td><td>string</td><td><code>教學大樓</code></td></tr>
+            <tr><td><code>floor</code></td><td>string</td><td><code>1樓</code></td></tr>
+            <tr><td><code>room</code></td><td>string</td><td><code>101</code></td></tr>
+            <tr><td><code>active</code></td><td>boolean</td><td><code>true</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">💡</span>
+      <div>建議先新增 5～10 個常用地點（如各棟教室、廁所、走廊、辦公室等）。之後第三期開發的管理後台完成後，就可以在網頁上直接新增地點，不需要再進 Firestore Console 手動操作。</div>
+    </div>
+  </div>
+
+  <!-- ══ 完成確認 ══ -->
+  <div class="step-section">
+    <div class="card" style="border-color:var(--teal);background:var(--teal-lt);">
+      <h2 style="font-size:1rem;font-weight:700;color:var(--teal);margin-bottom:12px;">✅ 全部設定完成確認清單</h2>
+      <ul class="steps-list">
+        <li><div class="num t">✓</div><div>Firebase 專案已新增網頁應用程式，取得設定值</div></li>
+        <li><div class="num t">✓</div><div>Authentication 已啟用 Google 登入方式</div></li>
+        <li><div class="num t">✓</div><div>Firestore 資料庫已建立（正式版模式）</div></li>
+        <li><div class="num t">✓</div><div>Firestore 安全規則已套用並發布</div></li>
+        <li><div class="num t">✓</div><div><code>D:\Repair\.env</code> 已建立並填入所有設定值</div></li>
+        <li><div class="num t">✓</div><div>系統可正常啟動（<code>npm run dev</code>），可用學校帳號登入</div></li>
+        <li><div class="num t">✓</div><div>Firestore 已建立 <code>admins</code> 集合，超級管理員文件已新增</div></li>
+        <li><div class="num t">✓</div><div>Firestore 已建立 <code>locations</code> 集合，至少有一筆地點資料</div></li>
+        <li><div class="num t">✓</div><div>登入後導覽列出現「總務人員」標籤</div></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div><strong>國立臺南大學附屬高級中學 · 設備線上報修系統</strong></div>
+  <div style="margin-top:6px;">Firebase 設定指南 v1.0 &nbsp;·&nbsp; 2026-05-13</div>
+</footer>
+
+</body>
+</html>

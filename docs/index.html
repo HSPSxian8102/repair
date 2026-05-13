@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>學校設備線上報修系統 — 系統規劃</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #dbeafe;
+      --teal:    #0d9488;
+      --teal-lt: #ccfbf1;
+      --amber:   #d97706;
+      --amber-lt:#fef3c7;
+      --red:     #dc2626;
+      --red-lt:  #fee2e2;
+      --gray-50: #f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-400:#94a3b8;
+      --gray-600:#475569;
+      --gray-800:#1e293b;
+      --white:   #ffffff;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans TC', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; letter-spacing: -.02em; }
+    header p  { margin-top: 10px; font-size: 1rem; opacity: .85; }
+    header .meta { margin-top: 20px; font-size: .82rem; opacity: .65; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 20px 80px; }
+
+    section { margin-top: 56px; }
+    section > h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border-left: 4px solid var(--blue);
+      padding-left: 12px;
+      margin-bottom: 20px;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--gray-800);
+    }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: var(--gray-100); }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--gray-200); }
+    th { font-weight: 700; font-size: .8rem; letter-spacing: .05em; text-transform: uppercase; color: var(--gray-600); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── ROLE CARDS ── */
+    .role-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .role-card .role-header {
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: .9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .role-card .role-header .icon {
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .role-card.user       .role-header { background: var(--blue-lt);  color: var(--blue); }
+    .role-card.admin      .role-header { background: var(--teal-lt);  color: var(--teal); }
+    .role-card.superadmin .role-header { background: var(--amber-lt); color: var(--amber); }
+    .role-card.user       .role-header .icon { background: var(--blue); }
+    .role-card.admin      .role-header .icon { background: var(--teal); }
+    .role-card.superadmin .role-header .icon { background: var(--amber); }
+    .role-card ul { list-style: none; padding: 14px 18px; }
+    .role-card ul li { padding: 5px 0; font-size: .88rem; color: var(--gray-600); border-bottom: 1px solid var(--gray-100); }
+    .role-card ul li:last-child { border-bottom: none; }
+    .role-card ul li::before { content: "→ "; color: var(--gray-400); }
+
+    /* ── STATUS FLOW ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .flow-step {
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+    .flow-arrow { color: var(--gray-400); font-size: 1.2rem; }
+    .step-pending  { background: var(--amber-lt);  color: var(--amber); }
+    .step-progress { background: var(--blue-lt);   color: var(--blue); }
+    .step-done     { background: var(--teal-lt);   color: var(--teal); }
+    .flow-note { font-size: .82rem; color: var(--gray-600); margin-top: 6px; }
+
+    /* ── DATA FIELDS ── */
+    .field-group { margin-bottom: 16px; }
+    .field-group h4 {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+    }
+    .fields { display: flex; flex-wrap: wrap; gap: 8px; }
+    .field {
+      background: var(--gray-100);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: .82rem;
+      color: var(--gray-600);
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+    .field.key   { background: var(--blue-lt);  color: var(--blue); }
+    .field.time  { background: var(--amber-lt); color: var(--amber); }
+    .field.admin { background: var(--teal-lt);  color: var(--teal); }
+
+    /* ── PILL BADGES ── */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .pill-blue  { background: var(--blue-lt);  color: var(--blue); }
+    .pill-teal  { background: var(--teal-lt);  color: var(--teal); }
+    .pill-amber { background: var(--amber-lt); color: var(--amber); }
+    .pill-red   { background: var(--red-lt);   color: var(--red); }
+
+    /* ── PAGE LIST ── */
+    .page-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .page-item:last-child { border-bottom: none; }
+    .page-num {
+      min-width: 30px; height: 30px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+    .page-info h4 { font-size: .92rem; font-weight: 700; margin-bottom: 3px; }
+    .page-info p  { font-size: .84rem; color: var(--gray-600); }
+
+    /* ── NOTICE BOX ── */
+    .notice {
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-size: .88rem;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .notice-blue  { background: var(--blue-lt);  border-left: 4px solid var(--blue);  color: var(--gray-800); }
+    .notice-teal  { background: var(--teal-lt);  border-left: 4px solid var(--teal);  color: var(--gray-800); }
+    .notice-amber { background: var(--amber-lt); border-left: 4px solid var(--amber); color: var(--gray-800); }
+    .notice-red   { background: var(--red-lt);   border-left: 4px solid var(--red);   color: var(--gray-800); }
+    .notice .icon { font-size: 1.1rem; margin-top: 1px; }
+    .notice strong { font-weight: 700; }
+
+    /* ── PHASE ── */
+    .phase {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+    .phase-num {
+      min-width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--white);
+    }
+    .ph1 { background: var(--blue); }
+    .ph2 { background: var(--teal); }
+    .ph3 { background: var(--amber); }
+    .phase-body h4 { font-size: .92rem; font-weight: 700; margin-bottom: 4px; }
+    .phase-body ul { padding-left: 16px; font-size: .85rem; color: var(--gray-600); }
+    .phase-body ul li { margin-bottom: 2px; }
+
+    /* ── COST TABLE ── */
+    .cost-ok  { color: var(--teal); font-weight: 700; }
+    .cost-warn{ color: var(--amber); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--gray-800);
+      color: var(--gray-400);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: .82rem;
+      margin-top: 60px;
+    }
+    footer strong { color: var(--white); }
+
+    @media (max-width: 600px) {
+      header { padding: 36px 16px 28px; }
+      .container { padding: 0 14px 60px; }
+      .flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header>
+  <div class="badge">System Planning Document</div>
+  <h1>學校設備線上報修系統</h1>
+  <p>國立臺南大學附屬高級中學 · 總務處設備報修平台</p>
+  <div class="meta">版本 1.1 &nbsp;·&nbsp; 規劃日期 2026-05-13 &nbsp;·&nbsp; 網域 gm.tntcsh.tn.edu.tw</div>
+</header>
+
+<div class="container">
+
+  <!-- ══ 1. 技術架構 ══ -->
+  <section>
+    <h2>01 · 技術架構</h2>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>層面</th><th>技術選擇</th><th>說明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>前端框架</td><td><span class="pill pill-blue">React + Vite</span></td><td>元件化開發、建置速度快</td></tr>
+            <tr><td>UI / 樣式</td><td><span class="pill pill-blue">Tailwind CSS + shadcn/ui</span></td><td>行動優先設計、快速切版</td></tr>
+            <tr><td>資料庫</td><td><span class="pill pill-teal">Firebase Firestore</span></td><td>即時同步、無需自建伺服器</td></tr>
+            <tr><td>使用者驗證</td><td><span class="pill pill-teal">Firebase Auth + Google OAuth</span></td><td>學校 Google Workspace 帳號直接登入</td></tr>
+            <tr><td>後端排程</td><td><span class="pill pill-amber">Firebase Cloud Functions</span></td><td>寄信通知、自動封存舊資料</td></tr>
+            <tr><td>Email 服務</td><td><span class="pill pill-amber">SendGrid（免費方案）</span></td><td>報修通知信件寄送</td></tr>
+            <tr><td>佈署</td><td><span class="pill pill-teal">GitHub Pages</span></td><td>原始碼存放於 GitHub，自動部署</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>登入時限制僅允許 <strong>@gm.tntcsh.tn.edu.tw</strong> 網域的 Google 帳號，其他帳號登入後自動拒絕存取並顯示錯誤提示。</div>
+    </div>
+  </section>
+
+  <!-- ══ 2. 使用者角色 ══ -->
+  <section>
+    <h2>02 · 使用者角色與權限</h2>
+    <div class="grid-3">
+      <div class="role-card user">
+        <div class="role-header">
+          <div class="icon">👤</div>
+          一般使用者（學生 / 教師 / 行政）
+        </div>
+        <ul>
+          <li>Google 登入（學校帳號）</li>
+          <li>瀏覽全部報修清單（唯讀）</li>
+          <li>提交新報修單</li>
+          <li>修改或取消<em>自己</em>提交的「待處理」單</li>
+          <li>查看歷史紀錄與搜尋</li>
+          <li>完成時收到 Email 通知</li>
+        </ul>
+      </div>
+      <div class="role-card admin">
+        <div class="role-header">
+          <div class="icon">🔧</div>
+          總務處人員（管理員）
+        </div>
+        <ul>
+          <li>以上所有一般使用者權限</li>
+          <li>將狀態改為「處理中」或「已完成」</li>
+          <li>填寫完成修繕說明與備注</li>
+          <li>刪除任意筆報修資料</li>
+          <li>取消封存歷史紀錄</li>
+          <li>有新報修單時收到 Email 通知</li>
+        </ul>
+      </div>
+      <div class="role-card superadmin">
+        <div class="role-header">
+          <div class="icon">⭐</div>
+          超級管理員（總務主管）
+        </div>
+        <ul>
+          <li>以上所有管理員權限</li>
+          <li>新增 / 移除總務人員帳號</li>
+          <li>設定 / 編輯報修地點清單</li>
+          <li>新增 / 停用建築棟別與樓層房號</li>
+          <li>系統設定（學校名稱、網域）</li>
+          <li>帳號只有一位，預設寫入 Firestore</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h3>角色識別方式</h3>
+      <p style="font-size:.88rem;color:var(--gray-600);margin-bottom:12px;">採用 <strong>Firestore 管理員名單方案</strong>，在 <code>admins/{uid}</code> 集合中以 <code>role</code> 欄位區分：<code>"admin"</code>（總務人員）與 <code>"superadmin"</code>（主管）。登入時查詢確認身份，無需 Google Workspace Admin SDK。</p>
+      <div class="notice notice-amber" style="margin-bottom:0;">
+        <span class="icon">⭐</span>
+        <div><strong>公版設計：</strong>超級管理員可在後台自行設定學校名稱、允許登入的 Google 網域、地點清單，讓此系統能直接套用至其他學校，無需改動程式碼。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 3. 報修狀態流程 ══ -->
+  <section>
+    <h2>03 · 報修狀態流程</h2>
+    <div class="card">
+      <div class="flow">
+        <div class="flow-step step-pending">📋 待處理</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-progress">🔨 處理中</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-done">✅ 已完成</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="background:var(--gray-100);color:var(--gray-600);">📦 封存</div>
+      </div>
+      <div style="margin-top:16px;font-size:.85rem;color:var(--gray-600);">
+        <div style="margin-bottom:6px;">• <strong>待處理 → 處理中：</strong>僅限總務人員操作</div>
+        <div style="margin-bottom:6px;">• <strong>處理中 → 已完成：</strong>僅限總務人員操作，需填寫完成說明，系統自動 Email 通知提交者</div>
+        <div style="margin-bottom:6px;">• <strong>待處理 → 取消：</strong>提交者本人或總務人員可操作</div>
+        <div>• <strong>已完成 → 封存：</strong>完成滿 12 個月後由系統自動封存，總務人員可手動取消封存</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 4. 資料結構 ══ -->
+  <section>
+    <h2>04 · Firestore 資料結構</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>📄 repairs / {repairId}</h3>
+        <div class="field-group">
+          <h4>基本資訊</h4>
+          <div class="fields">
+            <span class="field key">id</span>
+            <span class="field">title（標題）</span>
+            <span class="field">location（地點）</span>
+            <span class="field">building（棟別）</span>
+            <span class="field">floor（樓層）</span>
+            <span class="field">room（房號）</span>
+            <span class="field">category（類別）</span>
+            <span class="field">description（說明）</span>
+            <span class="field">priority（普通/緊急）</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <h4>狀態</h4>
+          <div class="fields">
+            <span class="field">status</span>
+            <span class="field">archived（布林）</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <h4>提交者資訊</h4>
+          <div class="fields">
+            <span class="field key">submittedBy（UID）</span>
+            <span class="field">submitterName</span>
+            <span class="field">submitterEmail</span>
+            <span class="field time">submittedAt</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <h4>處理資訊（總務填寫）</h4>
+          <div class="fields">
+            <span class="field admin">assignedTo</span>
+            <span class="field time">inProgressAt</span>
+            <span class="field admin">completionNote</span>
+            <span class="field admin">completedBy</span>
+            <span class="field time">completedAt</span>
+            <span class="field time">archivedAt</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>👥 admins / {uid}</h3>
+        <div class="field-group">
+          <div class="fields">
+            <span class="field key">uid</span>
+            <span class="field">email</span>
+            <span class="field">name</span>
+            <span class="field admin">role（admin / superadmin）</span>
+            <span class="field time">addedAt</span>
+            <span class="field admin">addedBy</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;border-top:1px solid var(--gray-100);padding-top:16px;">
+          <h3>📍 locations / {locationId}</h3>
+          <div class="field-group" style="margin-top:8px;">
+            <div class="fields">
+              <span class="field key">id</span>
+              <span class="field">name（地點名稱）</span>
+              <span class="field">building（棟別）</span>
+              <span class="field">floor（樓層）</span>
+              <span class="field">room（房號/區域）</span>
+              <span class="field">active（是否啟用）</span>
+              <span class="field time">createdAt</span>
+              <span class="field admin">createdBy</span>
+            </div>
+          </div>
+          <div style="font-size:.8rem;color:var(--gray-400);margin-top:4px;">由超級管理員維護，提交報修時從清單選取，確保地點名稱統一。</div>
+        </div>
+        <div style="margin-top:16px;border-top:1px solid var(--gray-100);padding-top:16px;">
+          <h3>🏷 categories（固定清單）</h3>
+          <div class="field-group" style="margin-top:10px;">
+            <div class="fields">
+              <span class="pill pill-blue">電器設備</span>
+              <span class="pill pill-blue">水電管線</span>
+              <span class="pill pill-blue">門窗玻璃</span>
+              <span class="pill pill-blue">桌椅傢俱</span>
+              <span class="pill pill-blue">空調冷氣</span>
+              <span class="pill pill-blue">資訊設備</span>
+              <span class="pill pill-blue">環境清潔</span>
+              <span class="pill pill-blue">其他</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;border-top:1px solid var(--gray-100);padding-top:16px;">
+          <h3>🔑 索引建議（Firestore Index）</h3>
+          <div style="font-size:.82rem;color:var(--gray-600);margin-top:8px;line-height:1.8;">
+            <div>• status + submittedAt（主清單排序）</div>
+            <div>• archived + completedAt（歷史封存查詢）</div>
+            <div>• submittedBy + submittedAt（個人記錄查詢）</div>
+            <div>• category + status（分類篩選）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5. 搜尋與分頁 ══ -->
+  <section>
+    <h2>05 · 搜尋、篩選與分頁</h2>
+    <div class="card">
+      <h3>搜尋條件（可組合使用）</h3>
+      <div class="grid-3" style="margin-top:12px;">
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">文字搜尋</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">標題、地點、說明關鍵字</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">狀態篩選</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">待處理 / 處理中 / 已完成</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">類別篩選</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">8 大修繕類別</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">日期範圍</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">自訂開始 / 結束日期</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">地點篩選</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">棟別 / 樓層</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:6px;padding:14px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gray-400);margin-bottom:8px;">我的報修</div>
+          <div style="font-size:.85rem;color:var(--gray-600);">僅顯示自己提交的項目</div>
+        </div>
+      </div>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">⚡</span>
+      <div><strong>分頁機制：</strong>每頁顯示 20 筆，使用 Firestore 的 <code>startAfter()</code> 游標分頁，搭配「上一頁 / 下一頁」按鈕。日期範圍搜尋讓使用者可以快速找到特定月份的報修單，不需一直翻頁。</div>
+    </div>
+  </section>
+
+  <!-- ══ 6. Email 通知 ══ -->
+  <section>
+    <h2>06 · Email 通知機制</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>📬 通知 1：新報修提交</h3>
+        <div style="font-size:.85rem;color:var(--gray-600);line-height:1.8;">
+          <div><strong>觸發時機：</strong>任何人提交新報修單</div>
+          <div><strong>收件者：</strong>所有總務人員</div>
+          <div><strong>內容：</strong>報修標題、地點、類別、提交者、提交時間、報修說明、連結</div>
+          <div style="margin-top:8px;"><strong>技術實作：</strong>Cloud Functions onDocumentCreated 觸發器</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📬 通知 2：修繕完成</h3>
+        <div style="font-size:.85rem;color:var(--gray-600);line-height:1.8;">
+          <div><strong>觸發時機：</strong>總務人員將狀態改為「已完成」</div>
+          <div><strong>收件者：</strong>原始提交者</div>
+          <div><strong>內容：</strong>報修標題、完成時間、完成說明、處理人員、連結</div>
+          <div style="margin-top:8px;"><strong>技術實作：</strong>Cloud Functions onDocumentUpdated 觸發器（偵測 status 欄位變更）</div>
+        </div>
+      </div>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">✉</span>
+      <div><strong>Email 服務：</strong>使用 SendGrid 免費方案（每天 100 封，每月 3,000 封），以學校報修量完全足夠。透過 Firebase Cloud Functions 呼叫 SendGrid API 發送。</div>
+    </div>
+  </section>
+
+  <!-- ══ 7. 歷史紀錄與封存 ══ -->
+  <section>
+    <h2>07 · 歷史紀錄與自動封存</h2>
+    <div class="card">
+      <h3>封存策略：軟封存（推薦）</h3>
+      <p style="font-size:.85rem;color:var(--gray-600);margin:10px 0 16px;">所有資料永久保留於 Firestore，僅以 <code>archived: true</code> 標記，主清單預設不顯示封存資料。</p>
+      <div class="phase">
+        <div class="phase-num ph1">1</div>
+        <div class="phase-body">
+          <h4>自動封存觸發</h4>
+          <ul>
+            <li>Firebase Cloud Functions 每週一凌晨 2:00 執行排程</li>
+            <li>查詢 status = "completed" 且 completedAt 超過 <strong>12 個月</strong> 的資料</li>
+            <li>批次寫入 archived: true 與 archivedAt 時間戳</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num ph2">2</div>
+        <div class="phase-body">
+          <h4>歷史紀錄頁面</h4>
+          <ul>
+            <li>顯示所有 archived: true 的資料</li>
+            <li>支援完整搜尋、篩選、分頁（同主清單）</li>
+            <li>所有人均可查看（唯讀）</li>
+            <li>總務人員可手動「取消封存」，讓資料回到已完成清單</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num ph3">3</div>
+        <div class="phase-body">
+          <h4>未來擴充（選配）</h4>
+          <ul>
+            <li>統計報表：每月報修量、平均處理天數、常見類別圖表</li>
+            <li>匯出 CSV 供行政使用</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 8. 頁面規劃 ══ -->
+  <section>
+    <h2>08 · 頁面規劃</h2>
+    <div class="card">
+      <div class="page-item">
+        <div class="page-num">1</div>
+        <div class="page-info">
+          <h4>登入頁 <span class="pill pill-blue" style="font-size:.72rem;">公開</span></h4>
+          <p>Google 帳號登入按鈕、學校名稱、說明文字。非學校帳號顯示拒絕訊息。</p>
+        </div>
+      </div>
+      <div class="page-item">
+        <div class="page-num">2</div>
+        <div class="page-info">
+          <h4>報修清單（主頁）<span class="pill pill-teal" style="font-size:.72rem;">登入後</span></h4>
+          <p>顯示所有未封存報修單，支援篩選、搜尋、分頁（20筆/頁）。各狀態以顏色區分。</p>
+        </div>
+      </div>
+      <div class="page-item">
+        <div class="page-num">3</div>
+        <div class="page-info">
+          <h4>提交報修單 <span class="pill pill-teal" style="font-size:.72rem;">登入後</span></h4>
+          <p>填寫表單：標題、地點（從清單選取）、類別、優先級、說明。地點清單由超級管理員維護。</p>
+        </div>
+      </div>
+      <div class="page-item">
+        <div class="page-num">4</div>
+        <div class="page-info">
+          <h4>報修詳情 <span class="pill pill-teal" style="font-size:.72rem;">登入後</span></h4>
+          <p>完整顯示報修資訊與處理紀錄。提交者可修改/取消（待處理狀態）。總務人員可更新狀態、填寫完成說明、刪除。</p>
+        </div>
+      </div>
+      <div class="page-item">
+        <div class="page-num">5</div>
+        <div class="page-info">
+          <h4>歷史紀錄 <span class="pill pill-teal" style="font-size:.72rem;">登入後</span></h4>
+          <p>封存資料查詢頁，支援日期範圍、狀態、類別篩選。總務人員可取消封存。</p>
+        </div>
+      </div>
+      <div class="page-item">
+        <div class="page-num">6</div>
+        <div class="page-info">
+          <h4>管理員後台 <span class="pill pill-amber" style="font-size:.72rem;">總務專用</span> <span class="pill pill-red" style="font-size:.72rem;">超級管理員</span></h4>
+          <p>總務人員帳號管理（新增/移除/角色設定）。超級管理員專屬：報修地點清單維護（新增/編輯/停用棟別與房號）、系統基本設定（學校名稱、允許登入網域）。未來可擴充報修統計圖表。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 9. Firebase 費用分析 ══ -->
+  <section>
+    <h2>09 · Firebase 費用分析</h2>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>服務</th><th>免費額度</th><th>預估用量（月）</th><th>狀態</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Firestore 讀取</td>
+              <td>50,000 次/天</td>
+              <td>~5,000 次</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+            <tr>
+              <td>Firestore 寫入</td>
+              <td>20,000 次/天</td>
+              <td>~500 次</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+            <tr>
+              <td>Cloud Functions</td>
+              <td>125,000 次/月</td>
+              <td>~200 次</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+            <tr>
+              <td>Auth 驗證</td>
+              <td>無限制</td>
+              <td>—</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+            <tr>
+              <td>SendGrid Email</td>
+              <td>3,000 封/月</td>
+              <td>~60 封</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+            <tr>
+              <td>GitHub Pages</td>
+              <td>無限制（公開專案）</td>
+              <td>—</td>
+              <td class="cost-ok">✓ 免費</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">💰</span>
+      <div><strong>整體費用：$0</strong>。以一所高中的報修量，所有服務皆在 Firebase 免費方案（Spark）額度範圍內。本系統不使用 Firebase Storage（無照片功能），費用更低。</div>
+    </div>
+  </section>
+
+  <!-- ══ 10. 佈署與開發流程 ══ -->
+  <section>
+    <h2>10 · 佈署與開發流程</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>📦 GitHub 專案結構</h3>
+        <div style="font-family:'Consolas','Courier New',monospace;font-size:.82rem;color:var(--gray-600);line-height:2;">
+          repair-system/<br>
+          ├── src/<br>
+          │&nbsp;&nbsp;&nbsp;├── components/<br>
+          │&nbsp;&nbsp;&nbsp;├── pages/<br>
+          │&nbsp;&nbsp;&nbsp;├── hooks/<br>
+          │&nbsp;&nbsp;&nbsp;└── lib/ (firebase)<br>
+          ├── functions/ (Cloud Functions)<br>
+          ├── public/<br>
+          └── firebase.json
+        </div>
+      </div>
+      <div class="card">
+        <h3>🚀 自動部署流程</h3>
+        <div style="font-size:.85rem;color:var(--gray-600);line-height:1.9;">
+          <div>1. 開發者 push 到 <code>main</code> 分支</div>
+          <div>2. GitHub Actions 自動執行 build</div>
+          <div>3. 建置產物推送至 <code>gh-pages</code> 分支</div>
+          <div>4. GitHub Pages 自動發布</div>
+          <div style="margin-top:8px;">Firebase 規則（Security Rules）也納入版本控管，透過 CI/CD 自動部署。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 11. 開發分期 ══ -->
+  <section>
+    <h2>11 · 建議開發分期</h2>
+    <div class="card">
+      <div class="phase">
+        <div class="phase-num ph1">P1</div>
+        <div class="phase-body">
+          <h4>核心功能（第一期）</h4>
+          <ul>
+            <li>Google 登入 + 網域驗證</li>
+            <li>報修清單（主頁）+ 分頁</li>
+            <li>提交報修單（含地點選單）</li>
+            <li>報修詳情 + 狀態更新</li>
+            <li>管理員識別與刪除權限</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num ph2">P2</div>
+        <div class="phase-body">
+          <h4>通知與搜尋（第二期）</h4>
+          <ul>
+            <li>Cloud Functions Email 通知（新報修 + 完成通知）</li>
+            <li>搜尋與多條件篩選</li>
+            <li>歷史紀錄頁面</li>
+            <li>自動封存排程</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num ph3">P3</div>
+        <div class="phase-body">
+          <h4>進階功能（第三期，選配）</h4>
+          <ul>
+            <li>管理員後台：總務人員帳號管理</li>
+            <li>地點管理：棟別 / 樓層 / 房號 CRUD（超級管理員）</li>
+            <li>系統設定：學校名稱、允許登入網域（公版化）</li>
+            <li>報修統計圖表 / 匯出 CSV</li>
+            <li>PWA 支援（手機可加入主畫面）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 12. 響應式設計 ══ -->
+  <section>
+    <h2>12 · 響應式設計斷點</h2>
+    <div class="grid-3">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">📱</div>
+        <h3 style="margin-bottom:6px;">手機</h3>
+        <div style="font-size:.82rem;color:var(--gray-600);">< 640px<br>單欄佈局<br>底部導航列<br>大觸控按鈕</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">📟</div>
+        <h3 style="margin-bottom:6px;">平板</h3>
+        <div style="font-size:.82rem;color:var(--gray-600);">640px – 1024px<br>雙欄佈局<br>側邊抽屜選單</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">🖥</div>
+        <h3 style="margin-bottom:6px;">桌機</h3>
+        <div style="font-size:.82rem;color:var(--gray-600);">> 1024px<br>側邊欄固定<br>三欄卡片清單</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <div><strong>國立臺南大學附屬高級中學 · 設備線上報修系統</strong></div>
+  <div style="margin-top:6px;">系統規劃文件 v1.1 &nbsp;·&nbsp; 2026-05-13 &nbsp;·&nbsp; 網域 @gm.tntcsh.tn.edu.tw</div>
+</footer>
+
+</body>
+</html>

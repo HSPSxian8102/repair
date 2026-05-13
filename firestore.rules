@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+    function isSchoolAccount() {
+      return isAuthed() && request.auth.token.email.matches('.*@gm\\.tntcsh\\.tn\\.edu\\.tw$');
+    }
+    function isAdmin() {
+      return isSchoolAccount() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isSuperAdmin() {
+      return isAdmin() &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'superadmin';
+    }
+
+    // ── repairs ──
+    match /repairs/{id} {
+      allow read: if isSchoolAccount();
+      allow create: if isSchoolAccount();
+      allow update: if isSchoolAccount() && (
+        isAdmin() ||
+        (request.auth.uid == resource.data.submittedBy && resource.data.status == 'pending')
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── admins ──
+    match /admins/{uid} {
+      allow read:  if isSchoolAccount();
+      allow write: if isSuperAdmin();
+    }
+
+    // ── locations ──
+    match /locations/{id} {
+      allow read:  if isSchoolAccount();
+      allow write: if isSuperAdmin();
+    }
+  }
+}
