@@ -25,7 +25,7 @@ function appUrl() {
 
 function repairLink(repairId) {
   const base = appUrl()
-  return base ? `<p style="margin-top:16px"><a href="${base}/repair/${repairId}" style="background:#2563eb;color:#fff;padding:8px 18px;border-radius:4px;text-decoration:none;font-size:14px">查看報修單</a></p>` : ''
+  return base ? `<p style="margin-top:16px"><a href="${base}/#/repair/${repairId}" style="background:#2563eb;color:#fff;padding:8px 18px;border-radius:4px;text-decoration:none;font-size:14px">查看報修單</a></p>` : ''
 }
 
 function tableRow(label, value) {
