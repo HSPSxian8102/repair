@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>使用說明 — 設備線上報修系統</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #dbeafe;
+      --teal:    #0d9488;
+      --teal-lt: #ccfbf1;
+      --amber:   #d97706;
+      --amber-lt:#fef3c7;
+      --red:     #dc2626;
+      --red-lt:  #fee2e2;
+      --gray-50: #f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-400:#94a3b8;
+      --gray-600:#475569;
+      --gray-800:#1e293b;
+      --white:   #ffffff;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans TC', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.7;
+    }
+
+    header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; letter-spacing: -.02em; }
+    header p  { margin-top: 10px; font-size: 1rem; opacity: .85; }
+    header .meta { margin-top: 20px; font-size: .82rem; opacity: .65; }
+    header .link-btn {
+      display: inline-block;
+      margin-top: 20px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: var(--white);
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    header .link-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+    /* TOC */
+    .toc {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 40px 0 0;
+    }
+    .toc h2 { font-size: .82rem; font-weight: 700; color: var(--gray-400); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+    .toc a {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--gray-50);
+      color: var(--gray-600);
+      text-decoration: none;
+      font-size: .88rem;
+      transition: background .15s;
+    }
+    .toc a:hover { background: var(--blue-lt); color: var(--blue); }
+    .toc .role-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    .tag-all    { background: var(--gray-100); color: var(--gray-600); }
+    .tag-admin  { background: var(--teal-lt);  color: var(--teal); }
+    .tag-super  { background: var(--amber-lt); color: var(--amber); }
+
+    section { margin-top: 56px; }
+    section > h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border-left: 4px solid var(--blue);
+      padding-left: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800); }
+    .card p  { font-size: .88rem; color: var(--gray-600); margin-bottom: 10px; }
+    .card p:last-child { margin-bottom: 0; }
+
+    /* Steps */
+    .steps { list-style: none; }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-100);
+      align-items: flex-start;
+    }
+    .steps li:last-child { border-bottom: none; }
+    .step-num {
+      min-width: 28px; height: 28px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-body { flex: 1; font-size: .88rem; color: var(--gray-700); padding-top: 4px; }
+    .step-body strong { color: var(--gray-800); }
+
+    /* Notice */
+    .notice {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .87rem;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.6;
+    }
+    .notice-blue  { background: var(--blue-lt);  border-left: 4px solid var(--blue); }
+    .notice-teal  { background: var(--teal-lt);  border-left: 4px solid var(--teal); }
+    .notice-amber { background: var(--amber-lt); border-left: 4px solid var(--amber); }
+    .notice-red   { background: var(--red-lt);   border-left: 4px solid var(--red); }
+    .notice .icon { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+
+    /* Role banner */
+    .role-banner {
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .role-all    { background: var(--gray-100); color: var(--gray-700); }
+    .role-admin  { background: var(--teal-lt);  color: var(--teal); }
+    .role-super  { background: var(--amber-lt); color: var(--amber); }
+
+    /* Status pills */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+    .pill-pending  { background: var(--amber-lt); color: var(--amber); }
+    .pill-progress { background: var(--blue-lt);  color: var(--blue); }
+    .pill-done     { background: var(--teal-lt);  color: var(--teal); }
+    .pill-cancel   { background: var(--gray-100); color: var(--gray-600); }
+    .pill-archive  { background: var(--gray-100); color: var(--gray-600); }
+
+    /* Flow */
+    .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .flow-arrow { color: var(--gray-400); font-size: 1.1rem; }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+    /* Field description list */
+    .field-list { font-size: .87rem; }
+    .field-list dt {
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-top: 10px;
+    }
+    .field-list dd { color: var(--gray-600); padding-left: 12px; margin-top: 2px; }
+
+    /* FAQ */
+    .faq-item {
+      border-bottom: 1px solid var(--gray-100);
+      padding: 16px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-weight: 700; color: var(--gray-800); font-size: .92rem; margin-bottom: 6px; }
+    .faq-a { font-size: .87rem; color: var(--gray-600); line-height: 1.7; }
+
+    footer {
+      background: var(--gray-800);
+      color: var(--gray-400);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: .82rem;
+      margin-top: 60px;
+    }
+    footer strong { color: var(--white); }
+    footer a { color: var(--gray-400); }
+
+    @media (max-width: 600px) {
+      header { padding: 36px 16px 28px; }
+      .container { padding: 0 14px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">User Guide · 使用說明</div>
+  <h1>設備線上報修系統</h1>
+  <p>國立臺南大學附屬高級中學 · 總務處設備報修平台</p>
+  <div class="meta">適用對象：全校師生 &nbsp;·&nbsp; 總務人員 &nbsp;·&nbsp; 系統管理員</div>
+  <a href="https://begin0808.github.io/repair/" class="link-btn">🔧 前往系統</a>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>本頁目錄</h2>
+    <div class="toc-grid">
+      <a href="#login">① 如何登入 <span class="role-tag tag-all">全員</span></a>
+      <a href="#list">② 查看報修清單 <span class="role-tag tag-all">全員</span></a>
+      <a href="#submit">③ 提交新報修單 <span class="role-tag tag-all">全員</span></a>
+      <a href="#cancel">④ 取消報修單 <span class="role-tag tag-all">全員</span></a>
+      <a href="#admin-ops">⑤ 總務人員操作 <span class="role-tag tag-admin">總務</span></a>
+      <a href="#stats">⑥ 統計與 CSV 匯出 <span class="role-tag tag-admin">總務</span></a>
+      <a href="#archive">⑦ 歷史封存紀錄 <span class="role-tag tag-admin">總務</span></a>
+      <a href="#locations">⑧ 地點管理 <span class="role-tag tag-super">超管</span></a>
+      <a href="#accounts">⑨ 帳號管理 <span class="role-tag tag-super">超管</span></a>
+      <a href="#faq">⑩ 常見問題</a>
+    </div>
+  </div>
+
+  <!-- ① 登入 -->
+  <section id="login">
+    <h2>01 · 如何登入</h2>
+    <div class="role-banner role-all">👤 適用對象：全校師生、總務人員、管理員</div>
+    <div class="card">
+      <h3>登入步驟</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">開啟系統網址：<strong>https://begin0808.github.io/repair/</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">點擊「<strong>以 Google 帳號登入</strong>」按鈕</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">在 Google 登入視窗選擇您的<strong>學校帳號（@gm.tntcsh.tn.edu.tw）</strong></div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">登入成功後，自動進入報修清單頁面</div>
+        </li>
+      </ol>
+    </div>
+    <div class="notice notice-red">
+      <span class="icon">⚠</span>
+      <div><strong>僅限學校帳號：</strong>系統只允許 <strong>@gm.tntcsh.tn.edu.tw</strong> 網域的 Google 帳號登入。使用個人 Gmail 或其他帳號會顯示「帳號不符」的錯誤訊息，請切換至學校帳號重新登入。</div>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>導覽列右上角會顯示您的姓名與身份。<strong>總務人員</strong>顯示藍色標籤；<strong>超級管理員</strong>顯示金色標籤。</div>
+    </div>
+  </section>
+
+  <!-- ② 查看清單 -->
+  <section id="list">
+    <h2>02 · 查看報修清單</h2>
+    <div class="role-banner role-all">👤 適用對象：全校師生、總務人員、管理員</div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>篩選與搜尋</h3>
+        <dl class="field-list">
+          <dt>🔍 搜尋欄</dt>
+          <dd>輸入關鍵字，可搜尋報修標題或地點名稱</dd>
+          <dt>📂 類別下拉選單</dt>
+          <dd>選擇特定類別（電器設備、水電管線⋯等）</dd>
+          <dt>📋 狀態標籤列</dt>
+          <dd>點選「待處理」「處理中」「已完成」快速篩選</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3>狀態說明</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div><span class="pill pill-pending">待處理</span> &nbsp;報修單已提交，尚未有人接案</div>
+          <div><span class="pill pill-progress">處理中</span> &nbsp;總務人員已接受，正在修繕中</div>
+          <div><span class="pill pill-done">已完成</span> &nbsp;修繕完畢，提交者會收到通知信</div>
+          <div><span class="pill pill-cancel">已取消</span> &nbsp;提交者主動取消</div>
+        </div>
+      </div>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>每頁顯示 20 筆，超過時下方會出現「上一頁 / 下一頁」按鈕。搜尋或篩選後會顯示符合條件的總筆數。</div>
+    </div>
+  </section>
+
+  <!-- ③ 提交報修 -->
+  <section id="submit">
+    <h2>03 · 提交新報修單</h2>
+    <div class="role-banner role-all">👤 適用對象：全校師生、總務人員、管理員</div>
+    <div class="card">
+      <h3>操作步驟</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">點擊右上角「<strong>+ 新增報修</strong>」按鈕（或導覽列「+ 新增報修」）</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">填寫「<strong>報修標題</strong>」，簡短描述問題，例如：3樓男廁水龍頭損壞</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">從下拉選單選擇「<strong>地點</strong>」（由總務處建立的清單，選不到請聯絡管理員）</div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">選擇「<strong>類別</strong>」（電器設備、水電管線、門窗玻璃、桌椅傢俱、空調冷氣、資訊設備、環境清潔、其他）</div>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <div class="step-body">選擇「<strong>優先級</strong>」：普通 或 🔴 緊急（緊急代表影響教學或有安全疑慮）</div>
+        </li>
+        <li>
+          <div class="step-num">6</div>
+          <div class="step-body">在「<strong>問題說明</strong>」欄位詳述損壞情形（最多 500 字）</div>
+        </li>
+        <li>
+          <div class="step-num">7</div>
+          <div class="step-body">按「<strong>提交報修單</strong>」，完成後自動跳至報修詳情頁</div>
+        </li>
+      </ol>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">✉</span>
+      <div>提交成功後，<strong>所有總務人員會立即收到 Email 通知</strong>，包含報修內容與連結。緊急報修建議同時以電話通知總務處。</div>
+    </div>
+  </section>
+
+  <!-- ④ 取消報修 -->
+  <section id="cancel">
+    <h2>04 · 取消自己的報修單</h2>
+    <div class="role-banner role-all">👤 適用對象：全校師生（僅限本人提交的「待處理」單）</div>
+    <div class="card">
+      <h3>操作步驟</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">點擊您提交的報修單，進入詳情頁</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">頁面底部出現「<strong>取消這筆報修</strong>」按鈕（只有本人且狀態為「待處理」才會出現）</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">點擊確認後，狀態更新為「已取消」</div>
+        </li>
+      </ol>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">⚠</span>
+      <div>狀態已變為「<strong>處理中</strong>」或「<strong>已完成</strong>」的報修單，提交者無法自行取消，請直接聯絡總務處。</div>
+    </div>
+  </section>
+
+  <!-- ⑤ 總務操作 -->
+  <section id="admin-ops">
+    <h2>05 · 總務人員操作</h2>
+    <div class="role-banner role-admin">🔧 適用對象：總務人員、超級管理員</div>
+
+    <div class="card">
+      <h3>接受報修（待處理 → 處理中）</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">在報修清單找到「<span class="pill pill-pending">待處理</span>」的報修單，點進詳情頁</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">在藍色「總務處操作」區塊，點擊「<strong>✔ 接受處理 → 處理中</strong>」</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">狀態更新為「<span class="pill pill-progress">處理中</span>」，並記錄接案時間與人員</div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>標記完成（處理中 → 已完成）</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">進入「<span class="pill pill-progress">處理中</span>」的報修單詳情頁</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">在「完成說明」欄位填寫修繕方式或備注（選填，建議填寫）</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">點擊「<strong>✅ 標記為已完成</strong>」</div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">系統自動寄送完成通知信給<strong>原始提交者</strong></div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>刪除報修單</h3>
+      <p>進入任意報修單詳情頁，在「總務處操作」區塊底部點擊「<strong>🗑 刪除此報修單</strong>」。</p>
+      <p>確認對話框出現後點擊確認，資料將<strong>永久刪除</strong>，無法復原。</p>
+      <div class="notice notice-red" style="margin-top:12px;margin-bottom:0;">
+        <span class="icon">⚠</span>
+        <div>刪除為不可逆操作，請確認該報修單確實無需保留再執行。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ 統計與CSV -->
+  <section id="stats">
+    <h2>06 · 統計儀表板與 CSV 匯出</h2>
+    <div class="role-banner role-admin">🔧 適用對象：總務人員、超級管理員</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>📊 統計儀表板</h3>
+        <p>點擊導覽列「<strong>📊 統計</strong>」進入：</p>
+        <ul style="font-size:.87rem;color:var(--gray-600);padding-left:16px;line-height:2;">
+          <li>待處理 / 處理中 / 已完成 / 封存 數量卡片</li>
+          <li>平均報修處理天數</li>
+          <li>狀態分佈圓餅圖</li>
+          <li>近 6 個月提報數趨勢圖</li>
+          <li>各類別報修數量長條圖</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>⬇ CSV 匯出</h3>
+        <ol class="steps">
+          <li>
+            <div class="step-num">1</div>
+            <div class="step-body">在報修清單頁，使用搜尋或篩選調整要匯出的範圍</div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div class="step-body">點擊右上角「<strong>↓ CSV</strong>」按鈕</div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div class="step-body">瀏覽器自動下載 CSV 檔案，可用 Excel 開啟</div>
+          </li>
+        </ol>
+        <div class="notice notice-blue" style="margin-top:12px;margin-bottom:0;">
+          <span class="icon">ℹ</span>
+          <div>CSV 包含：提交日期、標題、地點、類別、優先級、狀態、提交者、完成時間、完成說明。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑦ 歷史封存 -->
+  <section id="archive">
+    <h2>07 · 歷史封存紀錄</h2>
+    <div class="role-banner role-admin">🔧 適用對象：總務人員、超級管理員</div>
+    <div class="card">
+      <p>已完成超過 <strong>12 個月</strong>的報修單，系統每週自動封存。封存後不出現在一般清單，可到「<strong>📦 歷史</strong>」頁面查閱。</p>
+      <div style="margin-top:16px;">
+        <h3>查詢封存紀錄</h3>
+        <ol class="steps" style="margin-top:8px;">
+          <li>
+            <div class="step-num">1</div>
+            <div class="step-body">點擊導覽列「<strong>📦 歷史</strong>」</div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div class="step-body">可使用搜尋關鍵字或類別篩選</div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div class="step-body">點擊任意封存紀錄可查看完整內容</div>
+          </li>
+        </ol>
+      </div>
+      <div style="margin-top:16px;">
+        <h3>取消封存（恢復至已完成清單）</h3>
+        <p>進入封存報修單的詳情頁，點擊灰色封存提示區塊中的「<strong>取消封存</strong>」按鈕即可恢復。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑧ 地點管理 -->
+  <section id="locations">
+    <h2>08 · 地點管理</h2>
+    <div class="role-banner role-super">⭐ 適用對象：超級管理員</div>
+    <div class="card">
+      <p>點擊導覽列「<strong>📍 地點</strong>」進入地點管理頁面。地點清單是提交報修單時的選項來源，需事先建立完整的地點資料。</p>
+
+      <div style="margin-top:16px;">
+        <h3>新增地點</h3>
+        <ol class="steps" style="margin-top:8px;">
+          <li>
+            <div class="step-num">1</div>
+            <div class="step-body">點擊右上角「<strong>+ 新增地點</strong>」</div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div class="step-body">填寫「<strong>地點名稱</strong>」（必填，例：教學大樓 101教室）和「<strong>棟別</strong>」（必填，例：教學大樓）</div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div class="step-body">選填「樓層」（例：1樓）和「教室」（例：101），確認「啟用此地點」已勾選</div>
+          </li>
+          <li>
+            <div class="step-num">4</div>
+            <div class="step-body">點擊「<strong>新增地點</strong>」完成</div>
+          </li>
+        </ol>
+      </div>
+      <div style="margin-top:16px;">
+        <h3>停用地點</h3>
+        <p>點擊地點清單中的「<span style="background:var(--teal-lt);color:var(--teal);padding:2px 8px;border-radius:4px;font-size:.85rem;font-weight:600;">啟用</span>」標籤即可切換為「停用」。停用後該地點不再出現在報修表單的選項中，但現有報修單不受影響。</p>
+      </div>
+      <div style="margin-top:16px;">
+        <h3>刪除地點</h3>
+        <p>點擊地點列右側「<strong>刪除</strong>」，確認後永久移除。已選擇此地點的報修單不受影響，但建議優先使用「停用」而非刪除。</p>
+      </div>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">💡</span>
+      <div>建議以<strong>棟別為單位</strong>批次新增地點。例如教學大樓逐一新增每間教室，讓師生提報時能精確選擇。</div>
+    </div>
+  </section>
+
+  <!-- ⑨ 帳號管理 -->
+  <section id="accounts">
+    <h2>09 · 管理員帳號管理</h2>
+    <div class="role-banner role-super">⭐ 適用對象：超級管理員</div>
+    <div class="card">
+      <p>點擊導覽列「<strong>👥 帳號</strong>」進入管理員帳號管理。可新增、移除總務人員帳號，或調整角色。</p>
+
+      <div style="margin-top:16px;">
+        <h3>新增總務人員</h3>
+        <ol class="steps" style="margin-top:8px;">
+          <li>
+            <div class="step-num">1</div>
+            <div class="step-body">請對方先以學校帳號<strong>登入系統一次</strong>（這樣系統才會有他的帳號資料）</div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div class="step-body">在「新增管理員」表單輸入對方的<strong>學校 Email</strong>（@gm.tntcsh.tn.edu.tw）</div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div class="step-body">選擇角色：<strong>總務人員</strong>（可操作報修）或 <strong>超級管理員</strong>（另可管理帳號與地點）</div>
+          </li>
+          <li>
+            <div class="step-num">4</div>
+            <div class="step-body">點擊「<strong>新增</strong>」，對方下次登入後即生效</div>
+          </li>
+        </ol>
+      </div>
+      <div style="margin-top:16px;">
+        <h3>變更角色</h3>
+        <p>在帳號清單中，直接點擊角色欄位的下拉選單，選擇新角色即時更新。</p>
+      </div>
+      <div style="margin-top:16px;">
+        <h3>移除管理員權限</h3>
+        <p>點擊帳號列右側「<strong>移除</strong>」，確認後對方立即失去管理員權限，但其帳號仍可登入系統（以一般使用者身份）。</p>
+      </div>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>新增失敗通常是因為對方尚未登入系統。請請對方先到 <strong>https://begin0808.github.io/repair/</strong> 用學校帳號登入一次後，再回來新增。</div>
+    </div>
+  </section>
+
+  <!-- ⑩ FAQ -->
+  <section id="faq">
+    <h2>10 · 常見問題</h2>
+    <div class="card">
+      <div class="faq-item">
+        <div class="faq-q">Q：我用學校帳號登入，但出現「帳號不符」的錯誤？</div>
+        <div class="faq-a">請確認您使用的是 <strong>@gm.tntcsh.tn.edu.tw</strong> 的帳號，而非 @gmail.com 或其他帳號。如果 Google 帳號選擇器自動選到了個人帳號，請點「使用其他帳號」並手動輸入學校帳號。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：提交報修後，總務人員多久會處理？</div>
+        <div class="faq-a">系統提交後，所有總務人員會立即收到 Email 通知。實際處理時間依報修性質而定，緊急事項請同時電話聯絡總務處。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：我提交的報修單已進入「處理中」，想修改說明怎麼辦？</div>
+        <div class="faq-a">狀態為「處理中」或「已完成」時，提交者無法自行修改。請直接聯絡總務人員告知補充資訊。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：報修完成後我有收到通知信，但沒看到完成說明？</div>
+        <div class="faq-a">完成說明為選填欄位，總務人員可能未填寫。您可以點擊信中連結或直接進入系統查看報修詳情頁，「處理紀錄」區塊會顯示完成相關資訊。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：找不到想選的地點？</div>
+        <div class="faq-a">地點清單由超級管理員維護。如果您需要的地點不在選單中，請聯絡總務處請管理員新增。在地點建立前，可暫時選擇「其他」並在說明欄詳細填寫實際地點。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：系統在手機上可以正常使用嗎？</div>
+        <div class="faq-a">可以。本系統採用響應式設計，支援手機、平板、電腦。建議使用 Chrome 或 Safari 瀏覽器。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：舊的報修單怎麼找？</div>
+        <div class="faq-a">一年以上的已完成報修單會自動封存，可點擊「<strong>📦 歷史</strong>」查詢（需管理員帳號）。未封存的報修單在主清單使用搜尋功能即可找到。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：我是總務人員，但導覽列沒有看到「總務處操作」功能？</div>
+        <div class="faq-a">請聯絡超級管理員（總務主管），請他到「👥 帳號管理」頁面將您的帳號加入為「總務人員」。請對方確認您的學校 Email，您需要先登入系統一次後，才能被加入。</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div><strong>國立臺南大學附屬高級中學 · 設備線上報修系統</strong></div>
+  <div style="margin-top:6px;">使用說明 v1.0 &nbsp;·&nbsp; 2026-05-14 &nbsp;·&nbsp; <a href="https://begin0808.github.io/repair/">前往系統</a> &nbsp;·&nbsp; <a href="index.html">系統規劃文件</a></div>
+</footer>
+
+</body>
+</html>

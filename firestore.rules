@@ -23,7 +23,11 @@ service cloud.firestore {
       allow create: if isSchoolAccount();
       allow update: if isSchoolAccount() && (
         isAdmin() ||
-        (request.auth.uid == resource.data.submittedBy && resource.data.status == 'pending')
+        // 提交者只能將「待處理」單取消，且只允許修改 status 與 cancelledAt 欄位
+        (request.auth.uid == resource.data.submittedBy &&
+         resource.data.status == 'pending' &&
+         request.resource.data.status == 'cancelled' &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancelledAt']))
       );
       allow delete: if isAdmin();
     }

@@ -118,6 +118,9 @@ exports.listAdmins = functions
   .https.onCall(async (data, context) => {
     if (!context.auth) throw new functions.https.HttpsError('unauthenticated', '請先登入')
 
+    const callerDoc = await admin.firestore().collection('admins').doc(context.auth.uid).get()
+    if (!callerDoc.exists) throw new functions.https.HttpsError('permission-denied', '僅限管理員使用')
+
     const snap = await admin.firestore().collection('admins').get()
     const results = await Promise.all(
       snap.docs.map(async d => {

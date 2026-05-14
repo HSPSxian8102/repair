@@ -278,7 +278,7 @@
   <div class="badge">System Planning Document</div>
   <h1>學校設備線上報修系統</h1>
   <p>國立臺南大學附屬高級中學 · 總務處設備報修平台</p>
-  <div class="meta">版本 1.1 &nbsp;·&nbsp; 規劃日期 2026-05-13 &nbsp;·&nbsp; 網域 gm.tntcsh.tn.edu.tw</div>
+  <div class="meta">版本 2.0 &nbsp;·&nbsp; 完成日期 2026-05-14 &nbsp;·&nbsp; 網域 gm.tntcsh.tn.edu.tw &nbsp;·&nbsp; 三期全部完成</div>
 </header>
 
 <div class="container">
@@ -298,7 +298,7 @@
             <tr><td>資料庫</td><td><span class="pill pill-teal">Firebase Firestore</span></td><td>即時同步、無需自建伺服器</td></tr>
             <tr><td>使用者驗證</td><td><span class="pill pill-teal">Firebase Auth + Google OAuth</span></td><td>學校 Google Workspace 帳號直接登入</td></tr>
             <tr><td>後端排程</td><td><span class="pill pill-amber">Firebase Cloud Functions</span></td><td>寄信通知、自動封存舊資料</td></tr>
-            <tr><td>Email 服務</td><td><span class="pill pill-amber">SendGrid（免費方案）</span></td><td>報修通知信件寄送</td></tr>
+            <tr><td>Email 服務</td><td><span class="pill pill-amber">Gmail + Nodemailer</span></td><td>報修通知信件寄送（Cloud Functions）</td></tr>
             <tr><td>佈署</td><td><span class="pill pill-teal">GitHub Pages</span></td><td>原始碼存放於 GitHub，自動部署</td></tr>
           </tbody>
         </table>
@@ -686,8 +686,8 @@
               <td class="cost-ok">✓ 免費</td>
             </tr>
             <tr>
-              <td>SendGrid Email</td>
-              <td>3,000 封/月</td>
+              <td>Gmail 寄信（Nodemailer）</td>
+              <td>無上限（Gmail App Password）</td>
               <td>~60 封</td>
               <td class="cost-ok">✓ 免費</td>
             </tr>
@@ -810,7 +810,7 @@
 <!-- ══════════════ FOOTER ══════════════ -->
 <footer>
   <div><strong>國立臺南大學附屬高級中學 · 設備線上報修系統</strong></div>
-  <div style="margin-top:6px;">系統規劃文件 v1.1 &nbsp;·&nbsp; 2026-05-13 &nbsp;·&nbsp; 網域 @gm.tntcsh.tn.edu.tw</div>
+  <div style="margin-top:6px;">系統規劃文件 v2.0 &nbsp;·&nbsp; 2026-05-14 &nbsp;·&nbsp; 網域 @gm.tntcsh.tn.edu.tw &nbsp;·&nbsp; <a href="https://begin0808.github.io/repair/" style="color:var(--gray-400);">線上系統</a></div>
 </footer>
 
 </body>
