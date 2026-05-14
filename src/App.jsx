@@ -8,6 +8,8 @@ import SubmitRepair from './pages/SubmitRepair'
 import RepairDetail from './pages/RepairDetail'
 import LocationManager from './pages/LocationManager'
 import ArchiveList from './pages/ArchiveList'
+import Dashboard from './pages/Dashboard'
+import AdminManager from './pages/AdminManager'
 
 export default function App() {
   return (
@@ -21,6 +23,8 @@ export default function App() {
               <Route path="/submit"     element={<SubmitRepair />} />
               <Route path="/repair/:id" element={<RepairDetail />} />
               <Route path="/archive"    element={<ArchiveList />} />
+              <Route path="/dashboard"  element={<Dashboard />} />
+              <Route path="/admins"     element={<AdminManager />} />
               <Route path="/locations"  element={<LocationManager />} />
             </Route>
           </Route>

@@ -2,7 +2,7 @@
   "name": "school-repair-functions",
   "version": "1.0.0",
   "description": "Firebase Cloud Functions for repair system notifications",
-  "engines": { "node": "18" },
+  "engines": { "node": "20" },
   "main": "index.js",
   "dependencies": {
     "firebase-admin": "^12.3.0",

@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext'
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge'
 import Pagination from '../components/Pagination'
 
+const STATUS_LABELS = { pending: '待處理', in_progress: '處理中', completed: '已完成', cancelled: '已取消' }
+
 const PAGE_SIZE = 20
 
 const STATUS_TABS = [
@@ -93,12 +95,44 @@ export default function RepairList() {
   const hasFilter = searchTerm.trim() || categoryFilter !== 'all'
   const clearFilters = () => { setSearchTerm(''); setCategoryFilter('all'); setPage(1) }
 
+  const handleExportCSV = () => {
+    const headers = ['提交日期', '標題', '地點', '類別', '優先級', '狀態', '提交者', '完成時間', '完成說明']
+    const rows = filtered.map(r => [
+      formatDate(r.submittedAt),
+      r.title,
+      r.locationName || r.location || '',
+      r.category || '',
+      r.priority === 'urgent' ? '緊急' : '普通',
+      STATUS_LABELS[r.status] || r.status,
+      r.submitterName || '',
+      r.completedAt ? formatDate(r.completedAt) : '',
+      r.completionNote || '',
+    ])
+    const csv = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = `報修清單_${new Date().toLocaleDateString('zh-TW').replace(/\//g, '')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-gray-800">報修清單</h1>
-        <Link to="/submit" className="btn-primary text-sm">+ 新增報修</Link>
+        <div className="flex gap-2">
+          {isAdmin && !loading && filtered.length > 0 && (
+            <button onClick={handleExportCSV} className="btn-outline text-sm px-3">
+              ↓ CSV
+            </button>
+          )}
+          <Link to="/submit" className="btn-primary text-sm">+ 新增報修</Link>
+        </div>
       </div>
 
       {/* Search + Category filter */}

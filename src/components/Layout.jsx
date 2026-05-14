@@ -30,10 +30,16 @@ export default function Layout() {
             <NavLink to="/" end className={navCls}>報修清單</NavLink>
             <NavLink to="/submit" className={navCls}>+ 新增報修</NavLink>
             {isAdmin && (
-              <NavLink to="/archive" className={navCls}>📦 歷史紀錄</NavLink>
+              <NavLink to="/dashboard" className={navCls}>📊 統計</NavLink>
+            )}
+            {isAdmin && (
+              <NavLink to="/archive" className={navCls}>📦 歷史</NavLink>
             )}
             {isSuperAdmin && (
-              <NavLink to="/locations" className={navCls}>📍 地點管理</NavLink>
+              <NavLink to="/admins" className={navCls}>👥 帳號</NavLink>
+            )}
+            {isSuperAdmin && (
+              <NavLink to="/locations" className={navCls}>📍 地點</NavLink>
             )}
 
             {/* User info */}

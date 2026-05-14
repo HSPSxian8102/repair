@@ -111,7 +111,65 @@ exports.onRepairUpdated = functions
     return null
   })
 
-// ── 3. Scheduled auto-archive (every Sunday 00:00 Asia/Taipei) ────────────────
+// ── 3. List admins (callable) ─────────────────────────────────────────────────
+
+exports.listAdmins = functions
+  .region('asia-east1')
+  .https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError('unauthenticated', '請先登入')
+
+    const snap = await admin.firestore().collection('admins').get()
+    const results = await Promise.all(
+      snap.docs.map(async d => {
+        try {
+          const u = await admin.auth().getUser(d.id)
+          return { uid: d.id, role: d.data().role, email: u.email, displayName: u.displayName || '' }
+        } catch {
+          return { uid: d.id, role: d.data().role, email: d.data().email || '(未知)', displayName: '' }
+        }
+      })
+    )
+    return results
+  })
+
+// ── 4. Set admin role by email (callable, superadmin only) ────────────────────
+
+exports.setAdminRole = functions
+  .region('asia-east1')
+  .https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError('unauthenticated', '請先登入')
+
+    const callerDoc = await admin.firestore().collection('admins').doc(context.auth.uid).get()
+    if (!callerDoc.exists || callerDoc.data().role !== 'superadmin') {
+      throw new functions.https.HttpsError('permission-denied', '僅超級管理員可執行此操作')
+    }
+
+    const { email, role } = data
+    if (!email) throw new functions.https.HttpsError('invalid-argument', '請提供 Email')
+
+    let userRecord
+    try {
+      userRecord = await admin.auth().getUserByEmail(email)
+    } catch {
+      throw new functions.https.HttpsError('not-found', '找不到此 Email 的使用者，請確認對方已以學校帳號登入過系統。')
+    }
+
+    const ref = admin.firestore().collection('admins').doc(userRecord.uid)
+    if (role === null || role === undefined) {
+      await ref.delete()
+    } else {
+      await ref.set({
+        role,
+        email:       userRecord.email,
+        displayName: userRecord.displayName || '',
+        updatedAt:   admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+    }
+
+    return { success: true, uid: userRecord.uid }
+  })
+
+// ── 5. Scheduled auto-archive (every Sunday 00:00 Asia/Taipei) ────────────────
 
 exports.scheduledAutoArchive = functions
   .region('asia-east1')
