@@ -74,6 +74,15 @@ export default function Layout() {
 
       <footer className="text-center text-xs text-gray-400 py-4 border-t border-gray-200">
         國立臺南大學附屬高級中學 · 設備線上報修系統
+        &nbsp;·&nbsp;
+        <a
+          href="/repair/docs/user-guide.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-blue-500 underline underline-offset-2"
+        >
+          使用說明
+        </a>
       </footer>
     </div>
   )
