@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>部署指南 — 設備線上報修系統</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #dbeafe;
+      --teal:    #0d9488;
+      --teal-lt: #ccfbf1;
+      --amber:   #d97706;
+      --amber-lt:#fef3c7;
+      --red:     #dc2626;
+      --red-lt:  #fee2e2;
+      --violet:  #7c3aed;
+      --violet-lt:#ede9fe;
+      --gray-50: #f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-400:#94a3b8;
+      --gray-600:#475569;
+      --gray-700:#334155;
+      --gray-800:#1e293b;
+      --white:   #ffffff;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Noto Sans TC', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: var(--white);
+      padding: 52px 24px 44px;
+      text-align: center;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; letter-spacing: -.02em; }
+    header p  { margin-top: 10px; font-size: 1rem; opacity: .85; }
+    header .meta { margin-top: 20px; font-size: .82rem; opacity: .65; }
+    header .links { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    header .link-btn {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: var(--white);
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    header .link-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px 100px; }
+
+    /* TOC */
+    .toc {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 40px 0 0;
+    }
+    .toc h2 { font-size: .82rem; font-weight: 700; color: var(--gray-400); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+    .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+    .toc a {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--gray-50);
+      color: var(--gray-600);
+      text-decoration: none;
+      font-size: .88rem;
+      transition: background .15s;
+    }
+    .toc a:hover { background: var(--blue-lt); color: var(--blue); }
+
+    section { margin-top: 56px; }
+    section > h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border-left: 4px solid var(--blue);
+      padding-left: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800); }
+    .card p  { font-size: .88rem; color: var(--gray-600); margin-bottom: 10px; }
+    .card p:last-child { margin-bottom: 0; }
+
+    /* Steps */
+    .steps { list-style: none; }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-100);
+      align-items: flex-start;
+    }
+    .steps li:last-child { border-bottom: none; }
+    .step-num {
+      min-width: 28px; height: 28px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-body { flex: 1; font-size: .88rem; color: var(--gray-700); padding-top: 4px; }
+    .step-body strong { color: var(--gray-800); }
+
+    /* Phase / big step */
+    .phase {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .phase:last-child { border-bottom: none; }
+    .phase-num {
+      min-width: 36px; height: 36px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .phase-body { flex: 1; }
+    .phase-title { font-weight: 700; font-size: .95rem; color: var(--gray-800); margin-bottom: 4px; }
+    .phase-desc  { font-size: .87rem; color: var(--gray-600); }
+
+    /* Notice */
+    .notice {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .87rem;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.6;
+    }
+    .notice-blue   { background: var(--blue-lt);   border-left: 4px solid var(--blue); }
+    .notice-teal   { background: var(--teal-lt);   border-left: 4px solid var(--teal); }
+    .notice-amber  { background: var(--amber-lt);  border-left: 4px solid var(--amber); }
+    .notice-red    { background: var(--red-lt);    border-left: 4px solid var(--red); }
+    .notice-violet { background: var(--violet-lt); border-left: 4px solid var(--violet); }
+    .notice .icon { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+
+    /* Code block */
+    .code-block {
+      background: var(--gray-800);
+      color: #e2e8f0;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: .82rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block .hl  { color: #93c5fd; }
+    .code-block .hl2 { color: #86efac; }
+    .code-block .cmt { color: #64748b; }
+
+    code {
+      background: var(--gray-100);
+      color: var(--violet);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .85em;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    /* File table */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--gray-100); }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--gray-200); }
+    th { font-weight: 700; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--gray-600); }
+    tr:last-child td { border-bottom: none; }
+    td code { white-space: nowrap; }
+
+    /* Badge */
+    .tag {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+    .tag-free    { background: var(--teal-lt);   color: var(--teal); }
+    .tag-req     { background: var(--red-lt);    color: var(--red); }
+    .tag-opt     { background: var(--blue-lt);   color: var(--blue); }
+
+    /* Check list */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 6px 0;
+      font-size: .88rem;
+      color: var(--gray-700);
+    }
+    .checklist .ck { color: var(--teal); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--gray-200);
+      padding: 28px 24px;
+      text-align: center;
+      font-size: .82rem;
+      color: var(--gray-400);
+      margin-top: 60px;
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .code-block { font-size: .76rem; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Deploy Guide</div>
+  <h1>設備線上報修系統<br>部署指南</h1>
+  <p>將本系統複製到貴校，30 分鐘完成部署</p>
+  <div class="meta">版本 1.0 &nbsp;·&nbsp; 2026-05-14 &nbsp;·&nbsp; 適用：具 Google Workspace 帳號系統的學校</div>
+  <div class="links">
+    <a class="link-btn" href="index.html">← 系統規劃文件</a>
+    <a class="link-btn" href="user-guide.html">使用說明</a>
+    <a class="link-btn" href="https://github.com/begin0808/repair" target="_blank">GitHub 原始碼</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>目錄</h2>
+    <div class="toc-grid">
+      <a href="#overview">① 系統簡介與授權</a>
+      <a href="#prereq">② 事前準備</a>
+      <a href="#fork">③ 複製程式碼</a>
+      <a href="#firebase">④ 建立 Firebase 專案</a>
+      <a href="#config">⑤ 修改學校設定</a>
+      <a href="#github-pages">⑥ 部署到 GitHub Pages</a>
+      <a href="#functions">⑦ 部署 Cloud Functions</a>
+      <a href="#first-run">⑧ 首次啟動設定</a>
+      <a href="#checklist">⑨ 上線檢查清單</a>
+      <a href="#faq">⑩ 常見問題</a>
+    </div>
+  </div>
+
+  <!-- ① 系統簡介 -->
+  <section id="overview">
+    <h2>01 · 系統簡介與授權</h2>
+    <div class="card">
+      <p>本系統為<strong>開源公版</strong>，任何學校皆可免費複製使用，無需授權費。系統以 <strong>MIT License</strong> 釋出——可自由修改、二次部署，僅需保留原始版本的著作聲明即可。</p>
+      <div style="margin-top:16px;" class="grid-2">
+        <div>
+          <h3>系統特色</h3>
+          <ul class="checklist">
+            <li><span class="ck">✓</span>使用學校 Google 帳號登入，不需另外申請帳號</li>
+            <li><span class="ck">✓</span>限定學校網域，外部人員無法登入</li>
+            <li><span class="ck">✓</span>新報修 → 管理員立即收到 Email 通知</li>
+            <li><span class="ck">✓</span>完成修繕 → 提報人自動收到完成通知</li>
+            <li><span class="ck">✓</span>統計圖表、CSV 匯出</li>
+            <li><span class="ck">✓</span>舊資料自動封存</li>
+            <li><span class="ck">✓</span>行動裝置友善介面</li>
+          </ul>
+        </div>
+        <div>
+          <h3>技術架構</h3>
+          <ul class="checklist">
+            <li><span class="ck">✓</span>前端：React 18 + Vite + Tailwind CSS</li>
+            <li><span class="ck">✓</span>資料庫：Firebase Firestore</li>
+            <li><span class="ck">✓</span>登入：Firebase Authentication（Google）</li>
+            <li><span class="ck">✓</span>後端：Firebase Cloud Functions（Node.js）</li>
+            <li><span class="ck">✓</span>寄信：Gmail + Nodemailer</li>
+            <li><span class="ck">✓</span>前端 Hosting：GitHub Pages（免費）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">💰</span>
+      <div><strong>費用說明：</strong>一般學校使用量下幾乎免費。GitHub Pages 完全免費；Firebase Firestore / Auth 在免費方案（Spark）即足夠，但 Cloud Functions 需升級至 Blaze（隨用隨付）方案。每月費用通常低於 <strong>NT$ 10</strong>，超過免費額度的情況極少見。</div>
+    </div>
+  </section>
+
+  <!-- ② 事前準備 -->
+  <section id="prereq">
+    <h2>02 · 事前準備</h2>
+    <div class="card">
+      <h3>需要準備的帳號與資訊</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>項目</th><th>說明</th><th>必要性</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GitHub 帳號</strong></td>
+              <td>用於存放程式碼與部署前端到 GitHub Pages</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>Google 帳號</strong>（個人）</td>
+              <td>建立 Firebase 專案用，建議使用管理者個人帳號</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>學校 Google Workspace 網域</strong></td>
+              <td>例如 <code>@gm.yourschool.edu.tw</code>，用於限制登入範圍</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>Gmail 應用程式密碼</strong></td>
+              <td>用於發送 Email 通知。開啟兩步驟驗證後可在 Google 帳號安全性頁面產生。</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>Node.js 22</strong>（本機）</td>
+              <td>安裝到本機電腦，用於執行部署指令</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>Git</strong>（本機）</td>
+              <td>版本控制工具，推送程式碼至 GitHub</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+            <tr>
+              <td><strong>Firebase CLI</strong></td>
+              <td>部署 Cloud Functions 和 Firestore 規則用</td>
+              <td><span class="tag tag-req">必要</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>安裝必要工具</h3>
+      <p>開啟終端機（Windows PowerShell 或 macOS Terminal），依序執行：</p>
+      <div class="code-block">
+<span class="cmt"># 1. 安裝 Node.js（如已安裝可跳過，請確認版本 ≥ 20）</span>
+<span class="cmt">#    前往 https://nodejs.org/ 下載 LTS 版本</span>
+
+<span class="cmt"># 2. 安裝 Firebase CLI</span>
+npm install -g firebase-tools
+
+<span class="cmt"># 3. 確認安裝成功</span>
+node -v      <span class="cmt"># 應顯示 v20.x.x 或以上</span>
+firebase -V  <span class="cmt"># 應顯示版本號</span>
+      </div>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">⚠</span>
+      <div>若貴校使用 <strong>Microsoft 365 / Outlook</strong> 帳號而非 Google Workspace，目前版本不支援，需要自行修改登入邏輯（替換 Firebase Auth 的 Google Provider 為 Microsoft Provider）。</div>
+    </div>
+  </section>
+
+  <!-- ③ 複製程式碼 -->
+  <section id="fork">
+    <h2>03 · 複製程式碼</h2>
+    <div class="card">
+      <h3>方法一：Fork（建議）</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">前往 <a href="https://github.com/begin0808/repair" target="_blank">github.com/begin0808/repair</a>，點擊右上角 <strong>Fork</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">Repository name 填入您喜歡的名稱（例如 <code>repair</code>），點擊 <strong>Create fork</strong></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">將 Fork 後的 Repository 複製到本機：<br>
+            <div class="code-block">git clone https://github.com/<span class="hl">你的帳號</span>/<span class="hl">repository名稱</span>.git
+cd <span class="hl">repository名稱</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">安裝前端相依套件：<br>
+            <div class="code-block">npm install</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <div class="step-body">安裝 Cloud Functions 相依套件：<br>
+            <div class="code-block">cd functions &amp;&amp; npm install &amp;&amp; cd ..</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>Fork 的優點是日後可以從原始 Repository 拉取更新（<code>git pull upstream main</code>）。如果只是要拿來用而不在意後續更新，用 <strong>Download ZIP</strong> 解壓縮也可以。</div>
+    </div>
+  </section>
+
+  <!-- ④ Firebase 專案 -->
+  <section id="firebase">
+    <h2>04 · 建立 Firebase 專案</h2>
+
+    <div class="card">
+      <h3>Step 1 — 建立專案</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">前往 <a href="https://console.firebase.google.com/" target="_blank">console.firebase.google.com</a>，點擊「<strong>建立專案</strong>」</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">輸入專案名稱（例如 <code>yourschool-repair</code>），完成建立（Google Analytics 可視需要開啟或關閉）</div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Step 2 — 開啟 Authentication（Google 登入）</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">左側選單 → <strong>Authentication</strong> → <strong>Get started</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">在「Sign-in method」頁籤，啟用 <strong>Google</strong></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">填入「專案支援電子郵件」（管理員個人信箱），儲存</div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">在「Settings」頁籤 → <strong>Authorized domains</strong> → <strong>Add domain</strong>，加入：<br>
+            <code>你的GitHub帳號.github.io</code><br>
+            （例如 <code>begin0808.github.io</code>）
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Step 3 — 開啟 Firestore Database</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">左側選單 → <strong>Firestore Database</strong> → <strong>建立資料庫</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">位置選 <strong>asia-east1（台灣）</strong></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">安全性規則暫時選「以測試模式啟動」，後面步驟會覆寫為正式規則</div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Step 4 — 新增 Web 應用程式並取得設定</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">專案首頁 → 點擊 <strong>&lt;/&gt;</strong> 圖示（新增 Web App）</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">填入 App nickname（例如 <code>repair-web</code>），不需勾選 Firebase Hosting，點擊「Register app」</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">複製畫面上的 <code>firebaseConfig</code> 物件，待下一步驟使用：
+            <div class="code-block"><span class="cmt">// 範例（每個專案的值都不同）</span>
+const firebaseConfig = {
+  apiKey:            "<span class="hl">AIza...</span>",
+  authDomain:        "<span class="hl">yourproject.firebaseapp.com</span>",
+  projectId:         "<span class="hl">yourproject</span>",
+  storageBucket:     "<span class="hl">yourproject.appspot.com</span>",
+  messagingSenderId: "<span class="hl">123456789</span>",
+  appId:             "<span class="hl">1:123...</span>"
+};</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Step 5 — 升級至 Blaze 方案（Cloud Functions 必須）</h3>
+      <p>Firebase 左下角 → 目前方案「Spark」→ 點擊升級 → 選擇 <strong>Blaze（隨用隨付）</strong>。需綁定信用卡，但一般學校使用量每月費用幾乎為 $0。</p>
+    </div>
+  </section>
+
+  <!-- ⑤ 修改學校設定 -->
+  <section id="config">
+    <h2>05 · 修改學校設定</h2>
+    <div class="notice notice-violet">
+      <span class="icon">✏️</span>
+      <div>這是最重要的步驟。共需修改 <strong>7 個地方</strong>，將原始學校的資訊替換成貴校的資訊。</div>
+    </div>
+
+    <div class="card">
+      <h3>① src/lib/firebase.js — Firebase 設定 + 網域限制</h3>
+      <p>將 <code>firebaseConfig</code> 替換為您在 Firebase Console 取得的設定，並修改 <code>hd</code>（Google OAuth hosted domain）為貴校網域：</p>
+      <div class="code-block"><span class="cmt">// src/lib/firebase.js</span>
+const firebaseConfig = {
+  apiKey:            "<span class="hl2">貼上您的 apiKey</span>",
+  authDomain:        "<span class="hl2">貼上您的 authDomain</span>",
+  projectId:         "<span class="hl2">貼上您的 projectId</span>",
+  storageBucket:     "<span class="hl2">貼上您的 storageBucket</span>",
+  messagingSenderId: "<span class="hl2">貼上您的 messagingSenderId</span>",
+  appId:             "<span class="hl2">貼上您的 appId</span>",
+}
+
+<span class="cmt">// 修改這行，換成貴校的 Google Workspace 網域</span>
+googleProvider.setCustomParameters({ hd: '<span class="hl2">gm.yourschool.edu.tw</span>' })</div>
+    </div>
+
+    <div class="card">
+      <h3>② src/context/AuthContext.jsx — 後端網域驗證</h3>
+      <div class="code-block"><span class="cmt">// 第 6 行，換成貴校網域</span>
+const ALLOWED_DOMAIN = '<span class="hl2">gm.yourschool.edu.tw</span>'</div>
+    </div>
+
+    <div class="card">
+      <h3>③ firestore.rules — 資料庫存取規則</h3>
+      <div class="code-block"><span class="cmt">// 第 9 行，換成貴校網域（注意 . 需加反斜線 \.）</span>
+return isAuthed() &amp;&amp; request.auth.token.email.matches('.*@<span class="hl2">gm\\.yourschool\\.edu\\.tw</span>$');</div>
+    </div>
+
+    <div class="card">
+      <h3>④ src/pages/Login.jsx — 登入頁顯示文字</h3>
+      <div class="code-block"><span class="cmt">// 修改第 40、47、53 行</span>
+&lt;p&gt;<span class="hl2">貴校全名</span>&lt;/p&gt;
+&lt;span&gt;（限 @<span class="hl2">gm.yourschool.edu.tw</span>）&lt;/span&gt;
+請使用 @<span class="hl2">gm.yourschool.edu.tw</span> 帳號。</div>
+    </div>
+
+    <div class="card">
+      <h3>⑤ src/components/Layout.jsx — 頁尾學校名稱</h3>
+      <div class="code-block"><span class="cmt">// 第 76 行</span>
+<span class="hl2">貴校全名</span> · 設備線上報修系統</div>
+    </div>
+
+    <div class="card">
+      <h3>⑥ functions/index.js — Email 頁尾</h3>
+      <div class="code-block"><span class="cmt">// 第 35 行</span>
+const FOOTER = '&lt;p ...&gt;<span class="hl2">貴校全名</span> 設備線上報修系統&lt;/p&gt;'</div>
+    </div>
+
+    <div class="card">
+      <h3>⑦ vite.config.js — GitHub Pages 路徑</h3>
+      <p>如果您的 Repository 名稱不是 <code>repair</code>，需要修改 <code>base</code>：</p>
+      <div class="code-block"><span class="cmt">// vite.config.js 第 6 行</span>
+base: '/<span class="hl2">你的Repository名稱</span>/',</div>
+      <p style="margin-top:8px;">同時修改 <code>src/App.jsx</code> 第 17 行的 <code>basename</code>：</p>
+      <div class="code-block">&lt;BrowserRouter basename="/<span class="hl2">你的Repository名稱</span>"&gt;</div>
+      <p style="margin-top:8px;">以及 <code>public/404.html</code> 第 12 行的路徑前綴：</p>
+      <div class="code-block">window.history.replaceState(null, null, '/<span class="hl2">你的Repository名稱</span>' + path + l.hash)</div>
+    </div>
+
+    <div class="card">
+      <h3>完成後確認</h3>
+      <p>存檔後可在本機預覽是否正常：</p>
+      <div class="code-block">npm run dev</div>
+      <p style="margin-top:8px;">瀏覽器開啟 <code>http://localhost:5173/你的Repository名稱/</code>，應能看到登入頁面。</p>
+    </div>
+  </section>
+
+  <!-- ⑥ GitHub Pages -->
+  <section id="github-pages">
+    <h2>06 · 部署到 GitHub Pages</h2>
+    <div class="card">
+      <h3>設定 GitHub Secrets（供 GitHub Actions 使用）</h3>
+      <p>前往您的 GitHub Repository → <strong>Settings</strong> → <strong>Secrets and variables</strong> → <strong>Actions</strong> → <strong>New repository secret</strong>，依序新增以下 5 個 Secrets：</p>
+      <div class="tbl-wrap" style="margin-top:12px;">
+        <table>
+          <thead><tr><th>Secret 名稱</th><th>值（從哪裡取得）</th></tr></thead>
+          <tbody>
+            <tr><td><code>VITE_FIREBASE_API_KEY</code></td><td>Firebase Console → 專案設定 → 您的 Web App → apiKey</td></tr>
+            <tr><td><code>VITE_FIREBASE_AUTH_DOMAIN</code></td><td>同上 → authDomain</td></tr>
+            <tr><td><code>VITE_FIREBASE_PROJECT_ID</code></td><td>同上 → projectId</td></tr>
+            <tr><td><code>VITE_FIREBASE_MESSAGING_SENDER_ID</code></td><td>同上 → messagingSenderId</td></tr>
+            <tr><td><code>VITE_FIREBASE_APP_ID</code></td><td>同上 → appId</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>開啟 GitHub Pages</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">Repository → <strong>Settings</strong> → 左側 <strong>Pages</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">Source 選 <strong>GitHub Actions</strong></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">推送程式碼觸發自動部署：<br>
+            <div class="code-block">git add .
+git commit -m "init: configure for yourschool"
+git push origin main</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">等待約 2 分鐘，前往 <code>https://你的帳號.github.io/你的Repository名稱/</code> 確認頁面正常</div>
+        </li>
+      </ol>
+    </div>
+    <div class="notice notice-amber">
+      <span class="icon">⚠</span>
+      <div>若出現空白頁或 404，請確認 <code>vite.config.js</code> 的 <code>base</code> 與 Repository 名稱完全相同（含大小寫）。</div>
+    </div>
+  </section>
+
+  <!-- ⑦ Cloud Functions -->
+  <section id="functions">
+    <h2>07 · 部署 Cloud Functions（Email 通知）</h2>
+    <div class="card">
+      <h3>Step 1 — 取得 Gmail 應用程式密碼</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">使用<strong>個人 Gmail 帳號</strong>（不是學校帳號），前往 <a href="https://myaccount.google.com/security" target="_blank">Google 帳號安全性頁面</a></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">確認已開啟「<strong>兩步驟驗證</strong>」</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">搜尋「<strong>應用程式密碼</strong>」→ 輸入應用程式名稱（例如：報修系統）→ 產生 16 位密碼（<strong>去除空格</strong>後複製）</div>
+        </li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Step 2 — 登入 Firebase CLI 並設定環境變數</h3>
+      <div class="code-block"><span class="cmt"># 登入 Firebase（會開啟瀏覽器）</span>
+firebase login
+
+<span class="cmt"># 選擇您的 Firebase 專案</span>
+firebase use <span class="hl">your-project-id</span>
+
+<span class="cmt"># 設定 Email 帳號與應用程式密碼（不含空格）</span>
+firebase functions:config:set email.user="<span class="hl">your@gmail.com</span>" email.pass="<span class="hl">xxxxxxxxxxxxxxxx</span>"
+
+<span class="cmt"># 設定前端網址（用於 Email 中的「查看報修單」按鈕連結）</span>
+firebase functions:config:set app.url="https://<span class="hl">你的帳號.github.io/你的Repository名稱</span>"</div>
+    </div>
+    <div class="card">
+      <h3>Step 3 — 部署所有 Cloud Functions 與 Firestore 規則</h3>
+      <div class="code-block"><span class="cmt"># 部署 Cloud Functions</span>
+firebase deploy --only functions
+
+<span class="cmt"># 部署 Firestore 安全性規則</span>
+firebase deploy --only firestore:rules</div>
+      <p style="margin-top:8px;">全部成功後會顯示 <strong>Deploy complete!</strong>。若遇到 IAM 權限錯誤，請參考常見問題 Q1。</p>
+    </div>
+    <div class="notice notice-blue">
+      <span class="icon">ℹ</span>
+      <div>Cloud Functions 僅處理 Email 通知與帳號管理，前端功能（報修、搜尋、統計等）完全不需要 Functions 即可運作。如果暫時不需要 Email 通知，可跳過此步驟，後續再補部署。</div>
+    </div>
+  </section>
+
+  <!-- ⑧ 首次啟動 -->
+  <section id="first-run">
+    <h2>08 · 首次啟動設定</h2>
+    <div class="card">
+      <h3>建立第一位超級管理員</h3>
+      <p>系統上線後，需在 Firebase Console 手動建立第一筆管理員記錄。</p>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">用<strong>學校帳號</strong>登入系統一次（這樣 Firebase Auth 才會有您的 UID）</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">前往 Firebase Console → <strong>Authentication</strong> → 找到您的帳號，複製 <strong>User UID</strong>（一串字母數字）</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">前往 <strong>Firestore Database</strong> → 點擊「<strong>+ 新增集合</strong>」，集合 ID 填 <code>admins</code></div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body">文件 ID 填入剛才複製的 <strong>User UID</strong>，新增一個欄位：<br>
+            <code>role</code>（字串）= <code>superadmin</code>
+          </div>
+        </li>
+        <li>
+          <div class="step-num">5</div>
+          <div class="step-body">儲存後，重新整理系統頁面，您的帳號即具備超級管理員權限</div>
+        </li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>初始化地點清單</h3>
+      <p>登入系統後，前往導覽列「<strong>📍 地點</strong>」，新增貴校的大樓與場域名稱。建議項目：</p>
+      <ul style="margin-top:12px; padding-left:20px; font-size:.88rem; color:var(--gray-600); line-height:2;">
+        <li>各教學大樓（例如：行政大樓、圖書館、各棟教室大樓）</li>
+        <li>各室外場域（操場、籃球場、網球場、停車場…）</li>
+        <li>其他重要地點（游泳池、禮堂、體育館…）</li>
+      </ul>
+      <p style="margin-top:12px;">報修者選擇大樓後，可在「詳細位置」欄自由填寫，不需為每間教室都建一筆資料。</p>
+    </div>
+    <div class="card">
+      <h3>新增總務人員帳號</h3>
+      <ol class="steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body">請總務人員先以學校帳號<strong>登入系統一次</strong></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body">超級管理員前往「<strong>👥 帳號</strong>」頁面</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body">輸入總務人員的學校 Email，選擇角色「<strong>總務人員（admin）</strong>」，點擊新增</div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ⑨ 上線清單 -->
+  <section id="checklist">
+    <h2>09 · 上線檢查清單</h2>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>檢查項目</th><th>驗證方式</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>用學校帳號可以登入，個人 Gmail 無法登入</td><td>分別測試登入</td></tr>
+            <tr><td>2</td><td>登入後看到報修清單頁面</td><td>目視確認</td></tr>
+            <tr><td>3</td><td>可以提交一筆測試報修單</td><td>填表提交</td></tr>
+            <tr><td>4</td><td>提交後管理員收到 Email 通知</td><td>查看信箱</td></tr>
+            <tr><td>5</td><td>總務將報修標記為「已完成」，提報人收到通知</td><td>查看提報人信箱</td></tr>
+            <tr><td>6</td><td>統計儀表板圖表正常顯示</td><td>前往 /dashboard</td></tr>
+            <tr><td>7</td><td>超管可以新增 / 移除管理員</td><td>前往 /admins 操作</td></tr>
+            <tr><td>8</td><td>Firestore 安全性規則已部署（非測試模式）</td><td>Firebase Console → Firestore → 規則</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="notice notice-teal">
+      <span class="icon">✅</span>
+      <div>全部通過後，即可通知全校師生開始使用！建議製作一份簡短的學校內部公告，告知登入網址與使用方式。</div>
+    </div>
+  </section>
+
+  <!-- ⑩ 常見問題 -->
+  <section id="faq">
+    <h2>10 · 常見問題</h2>
+    <div class="card">
+      <h3>Q1：部署 Cloud Functions 時出現 IAM 權限錯誤</h3>
+      <p>錯誤訊息通常為「Access to bucket gcf-sources-... denied」。解決步驟：</p>
+      <ol class="steps" style="margin-top:8px;">
+        <li><div class="step-num">1</div><div class="step-body">前往 <a href="https://console.cloud.google.com/iam-admin/iam" target="_blank">GCP IAM Console</a>，選擇您的 Firebase 專案</div></li>
+        <li><div class="step-num">2</div><div class="step-body">找到 <code>XXXXXXXX-compute@developer.gserviceaccount.com</code> 這個服務帳號</div></li>
+        <li><div class="step-num">3</div><div class="step-body">點擊編輯，新增角色：<strong>Storage 物件檢視者</strong>（Storage Object Viewer）</div></li>
+        <li><div class="step-num">4</div><div class="step-body">儲存後重新執行 <code>firebase deploy --only functions</code></div></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Q2：登入後出現「登入失敗」或 OAuth 錯誤</h3>
+      <p>請確認 Firebase Authentication → Settings → Authorized domains 中已加入 <code>你的帳號.github.io</code>（不含 <code>https://</code>）。若使用自訂網域，也需要加入自訂網域。</p>
+    </div>
+    <div class="card">
+      <h3>Q3：Email 通知未收到</h3>
+      <ul style="padding-left:20px; font-size:.88rem; color:var(--gray-600); line-height:2; margin-top:8px;">
+        <li>確認 <code>firebase functions:config:set</code> 時 Gmail 密碼已去除空格（16 碼，無空格）</li>
+        <li>確認 Gmail 帳號已開啟「兩步驟驗證」再產生應用程式密碼</li>
+        <li>到 Firebase Console → Functions → Logs 查看錯誤訊息</li>
+        <li>Email 可能被歸類到垃圾郵件，請通知收件人檢查</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Q4：部署後頁面空白或路由錯誤</h3>
+      <ul style="padding-left:20px; font-size:.88rem; color:var(--gray-600); line-height:2; margin-top:8px;">
+        <li>確認 <code>vite.config.js</code> 的 <code>base</code> 與 Repository 名稱完全一致</li>
+        <li>確認 <code>src/App.jsx</code> 的 <code>basename</code> 也一致</li>
+        <li>確認 <code>public/404.html</code> 中的路徑前綴也已修改</li>
+        <li>修改後需重新 <code>git push</code> 觸發重新部署</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Q5：學校使用 Microsoft 帳號，能否支援？</h3>
+      <p>目前版本僅支援 Google Workspace 帳號。若學校使用 Microsoft 365 / Outlook，需要將 Firebase Auth 的 Google Provider 改為 Microsoft Provider，並對應修改網域驗證邏輯。這屬於較進階的修改，建議有開發能力的人員協助處理。</p>
+    </div>
+    <div class="card">
+      <h3>Q6：如何取得原始 Repository 的最新更新？</h3>
+      <div class="code-block"><span class="cmt"># 第一次設定上游（只需做一次）</span>
+git remote add upstream https://github.com/begin0808/repair.git
+
+<span class="cmt"># 之後拉取更新</span>
+git fetch upstream
+git merge upstream/main</div>
+      <p style="margin-top:8px;">合併後請重新檢查您自訂的學校設定是否被覆蓋，必要時重新修改。</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>設備線上報修系統 部署指南 · 版本 1.0 · 2026-05-14</p>
+  <p style="margin-top:6px;">
+    <a href="index.html">系統規劃文件</a> &nbsp;·&nbsp;
+    <a href="user-guide.html">使用說明</a> &nbsp;·&nbsp;
+    <a href="https://github.com/begin0808/repair" target="_blank">GitHub</a>
+  </p>
+</footer>
+
+</body>
+</html>

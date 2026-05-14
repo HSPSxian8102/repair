@@ -117,7 +117,7 @@ export default function SubmitRepair() {
             </div>
           ) : (
             <select className="input" value={form.locationId} onChange={handleLocationChange}>
-              <option value="">— 請選擇大樓 / 場域 —</option>
+              <option value="">— 請選擇大樓／場域 —</option>
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name}</option>
               ))}

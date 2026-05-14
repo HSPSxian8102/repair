@@ -150,7 +150,7 @@ export default function LocationManager() {
               <input
                 type="text"
                 className="input"
-                placeholder="例：正德樓、忠孝樓、操場、籃球場、游泳池"
+                placeholder="例：行政大樓、圖書館、操場、籃球場、游泳池"
                 value={form.name}
                 onChange={e => set('name', e.target.value)}
                 maxLength={30}
