@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>設備線上報修系統</title>
+  <script>
+    // Redirect all GitHub Pages 404s back to index.html, preserving the path
+    var l = window.location
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      '/repair/?p=' +
+      l.pathname.slice('/repair'.length).replace(/&/g, '~and~') +
+      (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+      l.hash
+    )
+  </script>
+</head>
+<body></body>
+</html>
