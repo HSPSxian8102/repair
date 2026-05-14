@@ -352,22 +352,26 @@
         </li>
         <li>
           <div class="step-num">3</div>
-          <div class="step-body">從下拉選單選擇「<strong>地點</strong>」（由總務處建立的清單，選不到請聯絡管理員）</div>
+          <div class="step-body">從下拉選單選擇「<strong>大樓 / 場域</strong>」（例：正德樓、忠孝樓、操場）</div>
         </li>
         <li>
           <div class="step-num">4</div>
-          <div class="step-body">選擇「<strong>類別</strong>」（電器設備、水電管線、門窗玻璃、桌椅傢俱、空調冷氣、資訊設備、環境清潔、其他）</div>
+          <div class="step-body">（選填）在「<strong>詳細位置</strong>」欄輸入精確位置，例如：105教室、2樓男廁、舞台右側。選擇大樓後欄位才會出現。</div>
         </li>
         <li>
           <div class="step-num">5</div>
-          <div class="step-body">選擇「<strong>優先級</strong>」：普通 或 🔴 緊急（緊急代表影響教學或有安全疑慮）</div>
+          <div class="step-body">選擇「<strong>類別</strong>」（電器設備、水電管線、門窗玻璃、桌椅傢俱、空調冷氣、資訊設備、環境清潔、其他）</div>
         </li>
         <li>
           <div class="step-num">6</div>
-          <div class="step-body">在「<strong>問題說明</strong>」欄位詳述損壞情形（最多 500 字）</div>
+          <div class="step-body">選擇「<strong>優先級</strong>」：普通 或 🔴 緊急（緊急代表影響教學或有安全疑慮）</div>
         </li>
         <li>
           <div class="step-num">7</div>
+          <div class="step-body">在「<strong>問題說明</strong>」欄位詳述損壞情形（最多 500 字）</div>
+        </li>
+        <li>
+          <div class="step-num">8</div>
           <div class="step-body">按「<strong>提交報修單</strong>」，完成後自動跳至報修詳情頁</div>
         </li>
       </ol>
@@ -537,41 +541,37 @@
     <h2>08 · 地點管理</h2>
     <div class="role-banner role-super">⭐ 適用對象：超級管理員</div>
     <div class="card">
-      <p>點擊導覽列「<strong>📍 地點</strong>」進入地點管理頁面。地點清單是提交報修單時的選項來源，需事先建立完整的地點資料。</p>
+      <p>點擊導覽列「<strong>📍 地點</strong>」進入地點管理頁面。系統採用<strong>兩層式地點設計</strong>：管理員只需維護大樓／場域名稱（下拉選單），詳細位置由報修者自行填寫，大幅降低維護成本。</p>
 
       <div style="margin-top:16px;">
-        <h3>新增地點</h3>
+        <h3>新增場域</h3>
         <ol class="steps" style="margin-top:8px;">
           <li>
             <div class="step-num">1</div>
-            <div class="step-body">點擊右上角「<strong>+ 新增地點</strong>」</div>
+            <div class="step-body">點擊右上角「<strong>+ 新增場域</strong>」</div>
           </li>
           <li>
             <div class="step-num">2</div>
-            <div class="step-body">填寫「<strong>地點名稱</strong>」（必填，例：教學大樓 101教室）和「<strong>棟別</strong>」（必填，例：教學大樓）</div>
+            <div class="step-body">填寫「<strong>場域名稱</strong>」（例：正德樓、忠孝樓、操場、籃球場），確認「啟用此場域」已勾選</div>
           </li>
           <li>
             <div class="step-num">3</div>
-            <div class="step-body">選填「樓層」（例：1樓）和「教室」（例：101），確認「啟用此地點」已勾選</div>
-          </li>
-          <li>
-            <div class="step-num">4</div>
-            <div class="step-body">點擊「<strong>新增地點</strong>」完成</div>
+            <div class="step-body">點擊「<strong>新增場域</strong>」完成。建議一次新增所有大樓與主要場域，約 10～20 筆即可涵蓋全校。</div>
           </li>
         </ol>
       </div>
       <div style="margin-top:16px;">
-        <h3>停用地點</h3>
-        <p>點擊地點清單中的「<span style="background:var(--teal-lt);color:var(--teal);padding:2px 8px;border-radius:4px;font-size:.85rem;font-weight:600;">啟用</span>」標籤即可切換為「停用」。停用後該地點不再出現在報修表單的選項中，但現有報修單不受影響。</p>
+        <h3>停用場域</h3>
+        <p>點擊場域清單中的「<span style="background:var(--teal-lt);color:var(--teal);padding:2px 8px;border-radius:4px;font-size:.85rem;font-weight:600;">啟用</span>」標籤即可切換為「停用」。停用後該場域不再出現在報修表單的選項中，但現有報修單不受影響。</p>
       </div>
       <div style="margin-top:16px;">
-        <h3>刪除地點</h3>
-        <p>點擊地點列右側「<strong>刪除</strong>」，確認後永久移除。已選擇此地點的報修單不受影響，但建議優先使用「停用」而非刪除。</p>
+        <h3>刪除場域</h3>
+        <p>點擊場域列右側「<strong>刪除</strong>」，確認後永久移除。已使用此場域的報修單不受影響，但建議優先使用「停用」而非刪除。</p>
       </div>
     </div>
-    <div class="notice notice-amber">
+    <div class="notice notice-blue">
       <span class="icon">💡</span>
-      <div>建議以<strong>棟別為單位</strong>批次新增地點。例如教學大樓逐一新增每間教室，讓師生提報時能精確選擇。</div>
+      <div><strong>設計理念：</strong>管理員只需建立大樓／場域（約 10～20 筆），不必逐間教室建立。報修者選擇大樓後，在「詳細位置」欄自行填入精確位置（如 105教室、2樓男廁），可描述任意細節。</div>
     </div>
   </section>
 
@@ -639,8 +639,8 @@
         <div class="faq-a">完成說明為選填欄位，總務人員可能未填寫。您可以點擊信中連結或直接進入系統查看報修詳情頁，「處理紀錄」區塊會顯示完成相關資訊。</div>
       </div>
       <div class="faq-item">
-        <div class="faq-q">Q：找不到想選的地點？</div>
-        <div class="faq-a">地點清單由超級管理員維護。如果您需要的地點不在選單中，請聯絡總務處請管理員新增。在地點建立前，可暫時選擇「其他」並在說明欄詳細填寫實際地點。</div>
+        <div class="faq-q">Q：找不到想選的大樓 / 場域？</div>
+        <div class="faq-a">場域清單由超級管理員維護。如果下拉選單中沒有您需要的大樓或場域，請聯絡總務處請管理員新增。選擇大樓後，您可以在「詳細位置」欄自由填寫具體的教室號碼或位置描述，無需等管理員新增。</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Q：系統在手機上可以正常使用嗎？</div>

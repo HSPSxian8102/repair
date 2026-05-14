@@ -57,7 +57,7 @@ exports.onRepairCreated = functions
             <h2 style="color:#2563eb;margin-top:0">新報修單通知</h2>
             <table style="width:100%;border-collapse:collapse">
               ${tableRow('標題', `<strong>${r.title}</strong>`)}
-              ${tableRow('地點', r.locationName || r.location)}
+              ${tableRow('地點', [r.locationName || r.location, r.locationDetail].filter(Boolean).join(' — '))}
               ${tableRow('類別', r.category)}
               ${tableRow('優先級', urgent ? '🔴 緊急' : '普通')}
               ${tableRow('問題說明', r.description)}
@@ -97,7 +97,7 @@ exports.onRepairUpdated = functions
             <p style="color:#555">您提交的報修單已完成處理，感謝您的耐心等候。</p>
             <table style="width:100%;border-collapse:collapse">
               ${tableRow('標題', `<strong>${after.title}</strong>`)}
-              ${tableRow('地點', after.locationName || after.location)}
+              ${tableRow('地點', [after.locationName || after.location, after.locationDetail].filter(Boolean).join(' — '))}
               ${tableRow('完成人員', after.completedBy)}
               ${after.completionNote ? tableRow('完成說明', after.completionNote) : ''}
             </table>

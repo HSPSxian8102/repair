@@ -78,7 +78,8 @@ export default function RepairList() {
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase()
       const inTitle    = (r.title || '').toLowerCase().includes(term)
-      const inLocation = (r.locationName || r.location || '').toLowerCase().includes(term)
+      const locFull    = [r.locationName || r.location, r.locationDetail].filter(Boolean).join(' ')
+      const inLocation = locFull.toLowerCase().includes(term)
       if (!inTitle && !inLocation) return false
     }
     return true
@@ -96,11 +97,12 @@ export default function RepairList() {
   const clearFilters = () => { setSearchTerm(''); setCategoryFilter('all'); setPage(1) }
 
   const handleExportCSV = () => {
-    const headers = ['提交日期', '標題', '地點', '類別', '優先級', '狀態', '提交者', '完成時間', '完成說明']
+    const headers = ['提交日期', '標題', '地點', '詳細位置', '類別', '優先級', '狀態', '提交者', '完成時間', '完成說明']
     const rows = filtered.map(r => [
       formatDate(r.submittedAt),
       r.title,
       r.locationName || r.location || '',
+      r.locationDetail || '',
       r.category || '',
       r.priority === 'urgent' ? '緊急' : '普通',
       STATUS_LABELS[r.status] || r.status,
@@ -202,7 +204,7 @@ export default function RepairList() {
                   </div>
                   <div className="font-semibold text-gray-800 truncate">{r.title}</div>
                   <div className="text-sm text-gray-500 mt-0.5 truncate">
-                    📍 {r.locationName || r.location}
+                    📍 {[r.locationName || r.location, r.locationDetail].filter(Boolean).join(' — ')}
                   </div>
                 </div>
                 <div className="text-right shrink-0">

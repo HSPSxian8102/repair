@@ -41,7 +41,8 @@ export default function ArchiveList() {
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase()
       const inTitle    = (r.title || '').toLowerCase().includes(term)
-      const inLocation = (r.locationName || r.location || '').toLowerCase().includes(term)
+      const locFull    = [r.locationName || r.location, r.locationDetail].filter(Boolean).join(' ')
+      const inLocation = locFull.toLowerCase().includes(term)
       if (!inTitle && !inLocation) return false
     }
     return true
@@ -116,7 +117,7 @@ export default function ArchiveList() {
                   </div>
                   <div className="font-semibold text-gray-700 truncate">{r.title}</div>
                   <div className="text-sm text-gray-400 mt-0.5 truncate">
-                    📍 {r.locationName || r.location}
+                    📍 {[r.locationName || r.location, r.locationDetail].filter(Boolean).join(' — ')}
                   </div>
                 </div>
                 <div className="text-right shrink-0">

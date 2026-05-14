@@ -10,24 +10,21 @@ export default function SubmitRepair() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [locations, setLocations] = useState([])
+  const [locations,  setLocations]  = useState([])
   const [locLoading, setLocLoading] = useState(true)
 
   const [form, setForm] = useState({
-    title: '', locationId: '', locationName: '', category: '', priority: 'normal', description: '',
+    title: '', locationId: '', locationName: '', locationDetail: '',
+    category: '', priority: 'normal', description: '',
   })
   const [errors,     setErrors]     = useState({})
   const [submitting, setSubmitting] = useState(false)
 
-  // Load active locations from Firestore
   useEffect(() => {
     getDocs(query(collection(db, 'locations'), where('active', '==', true)))
       .then(snap => {
         const locs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        locs.sort((a, b) =>
-          (a.building || '').localeCompare(b.building || '', 'zh-TW') ||
-          (a.name     || '').localeCompare(b.name     || '', 'zh-TW')
-        )
+        locs.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'zh-TW'))
         return locs
       })
       .then(locs => setLocations(locs))
@@ -49,9 +46,9 @@ export default function SubmitRepair() {
 
   const validate = () => {
     const e = {}
-    if (!form.title.trim())      e.title       = '請填寫報修標題'
-    if (!form.locationId)        e.locationId  = '請選擇地點'
-    if (!form.category)          e.category    = '請選擇類別'
+    if (!form.title.trim())       e.title       = '請填寫報修標題'
+    if (!form.locationId)         e.locationId  = '請選擇地點'
+    if (!form.category)           e.category    = '請選擇類別'
     if (!form.description.trim()) e.description = '請填寫問題說明'
     setErrors(e)
     return Object.keys(e).length === 0
@@ -63,18 +60,19 @@ export default function SubmitRepair() {
     setSubmitting(true)
     try {
       const docRef = await addDoc(collection(db, 'repairs'), {
-        title:        form.title.trim(),
-        locationId:   form.locationId,
-        locationName: form.locationName,
-        category:     form.category,
-        priority:     form.priority,
-        description:  form.description.trim(),
-        status:       'pending',
-        archived:     false,
-        submittedBy:   user.uid,
-        submitterName: user.displayName || user.email,
+        title:          form.title.trim(),
+        locationId:     form.locationId,
+        locationName:   form.locationName,
+        locationDetail: form.locationDetail.trim(),
+        category:       form.category,
+        priority:       form.priority,
+        description:    form.description.trim(),
+        status:         'pending',
+        archived:       false,
+        submittedBy:    user.uid,
+        submitterName:  user.displayName || user.email,
         submitterEmail: user.email,
-        submittedAt:   serverTimestamp(),
+        submittedAt:    serverTimestamp(),
       })
       navigate(`/repair/${docRef.id}`)
     } catch (err) {
@@ -100,7 +98,7 @@ export default function SubmitRepair() {
           <input
             type="text"
             className="input"
-            placeholder="例：3樓男廁水龍頭損壞"
+            placeholder="例：水龍頭損壞、投影機無法開機"
             value={form.title}
             onChange={e => set('title', e.target.value)}
             maxLength={60}
@@ -108,8 +106,8 @@ export default function SubmitRepair() {
           {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
         </div>
 
-        {/* Location */}
-        <div>
+        {/* Location — two-tier */}
+        <div className="space-y-2">
           <label className="label">地點 <span className="text-red-500">*</span></label>
           {locLoading ? (
             <div className="input text-gray-400">載入地點清單中…</div>
@@ -119,15 +117,25 @@ export default function SubmitRepair() {
             </div>
           ) : (
             <select className="input" value={form.locationId} onChange={handleLocationChange}>
-              <option value="">— 請選擇地點 —</option>
+              <option value="">— 請選擇大樓 / 場域 —</option>
               {locations.map(loc => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name}
-                </option>
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
               ))}
             </select>
           )}
           {errors.locationId && <p className="text-xs text-red-500 mt-1">{errors.locationId}</p>}
+
+          {/* Detail — shown after area is selected */}
+          {form.locationId && (
+            <input
+              type="text"
+              className="input"
+              placeholder="詳細位置（選填）：例如 105教室、2樓男廁、舞台右側"
+              value={form.locationDetail}
+              onChange={e => set('locationDetail', e.target.value)}
+              maxLength={40}
+            />
+          )}
         </div>
 
         {/* Category */}

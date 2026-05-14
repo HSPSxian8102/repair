@@ -143,7 +143,7 @@ export default function RepairDetail() {
 
       {/* Basic info */}
       <div className="card p-4">
-        <InfoRow label="地點"     value={repair.locationName || repair.location} />
+        <InfoRow label="地點"     value={[repair.locationName || repair.location, repair.locationDetail].filter(Boolean).join(' — ')} />
         <InfoRow label="類別"     value={repair.category} />
         <InfoRow label="問題說明" value={repair.description} />
         <InfoRow label="提交者"   value={`${repair.submitterName}（${repair.submitterEmail}）`} />
