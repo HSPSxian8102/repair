@@ -32,7 +32,7 @@ function tableRow(label, value) {
   return `<tr><td style="padding:5px 0;color:#888;width:90px;vertical-align:top">${label}</td><td style="padding:5px 0;color:#333">${value || '—'}</td></tr>`
 }
 
-const FOOTER = '<p style="color:#bbb;font-size:11px;margin-top:24px">國立臺南大學附屬高級中學 設備線上報修系統</p>'
+const FOOTER = '<p style="color:#bbb;font-size:11px;margin-top:24px">設備線上報修系統</p>'
 
 // ── 1. New repair → notify all admins ─────────────────────────────────────────
 
