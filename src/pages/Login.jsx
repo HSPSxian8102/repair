@@ -36,15 +36,15 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">🔧</div>
-          <h1 className="text-2xl font-bold text-gray-800">設備線上報修系統</h1>
+          <h1 className="text-3xl font-bold text-gray-900">設備線上報修系統</h1>
 
         </div>
 
         {/* Card */}
         <div className="card p-8">
-          <p className="text-sm text-gray-600 mb-6 text-center leading-relaxed">
+          <p className="text-base text-gray-700 mb-6 text-center leading-relaxed">
             請使用學校 Google 帳號登入<br />
-            <span className="text-xs text-gray-400">（限 @gm.tntcsh.tn.edu.tw）</span>
+            <span className="text-sm text-gray-500">（限 @gm.tntcsh.tn.edu.tw）</span>
           </p>
 
           {domainError && (
