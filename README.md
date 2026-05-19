@@ -1,6 +1,6 @@
 # 設備線上報修系統
 
-國立臺南大學附屬高級中學 — 設備線上報修系統（Equipment Repair Management System）
+設備線上報修系統（Equipment Repair Management System）
 
 🔗 **線上網址：** https://begin0808.github.io/repair/
 
@@ -166,4 +166,4 @@ admins/{uid}
 
 ## 授權
 
-本系統為國立臺南大學附屬高級中學內部使用，僅限學校 Google Workspace 帳號登入。
+本系統僅限學校 Google Workspace 帳號登入。
