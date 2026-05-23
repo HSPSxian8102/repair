@@ -358,7 +358,7 @@
         </li>
         <li>
           <div class="num">6</div>
-          <div>「支援電子郵件」選擇 <strong><code>begin@gm.tntcsh.tn.edu.tw</code></strong></div>
+          <div>「支援電子郵件」選擇您的<strong>學校管理員 Email</strong></div>
         </li>
         <li>
           <div class="num">7</div>
@@ -450,7 +450,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isSchoolAccount</span>() {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> isAuthed() &amp;&amp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.auth.token.email.matches(<span class="cs">'.*@gm\\.tntcsh\\.tn\\.edu\\.tw$'</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.auth.token.email.matches(<span class="cs">'.*@your-school-domain\\.edu\\.tw$'</span>);&nbsp;&nbsp;<span class="cc">// 替換為學校網域</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">function</span> <span class="cv">isAdmin</span>() {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">return</span> isSchoolAccount() &amp;&amp;<br>
@@ -582,7 +582,7 @@
         </li>
         <li>
           <div class="num">5</div>
-          <div>點「使用 Google 帳號登入」按鈕，選擇你的學校帳號（<code>begin@gm.tntcsh.tn.edu.tw</code>）登入</div>
+          <div>點「使用 Google 帳號登入」按鈕，選擇你的學校 Google Workspace 帳號登入</div>
         </li>
         <li>
           <div class="num">6</div>
@@ -659,7 +659,7 @@
             <tr><th>欄位名稱</th><th>類型</th><th>值</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>email</code></td><td>string（字串）</td><td><code>begin@gm.tntcsh.tn.edu.tw</code></td></tr>
+            <tr><td><code>email</code></td><td>string（字串）</td><td><code>admin@your-school-domain.edu.tw</code></td></tr>
             <tr><td><code>name</code></td><td>string（字串）</td><td>你的姓名</td></tr>
             <tr><td><code>role</code></td><td>string（字串）</td><td><strong><code>superadmin</code></strong>（全小寫）</td></tr>
           </tbody>
