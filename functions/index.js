@@ -58,8 +58,6 @@ exports.onRepairCreated = functions
             <table style="width:100%;border-collapse:collapse">
               ${tableRow('標題', `<strong>${r.title}</strong>`)}
               ${tableRow('地點', [r.locationName || r.location, r.locationDetail].filter(Boolean).join(' — '))}
-              ${tableRow('類別', r.category)}
-              ${tableRow('優先級', urgent ? '🔴 緊急' : '普通')}
               ${tableRow('問題說明', r.description)}
               ${tableRow('提交者', `${r.submitterName}（${r.submitterEmail}）`)}
             </table>
